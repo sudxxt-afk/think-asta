@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useRef, useState } from 'react'
 import { Bar, Button, Chip, Phone, Row, Stage, Text, Window, type Act } from '@/stageshow/kit'
 import './art.css'
 
@@ -8,10 +9,33 @@ const H = 300
 
 type FrameProps<S> = { initial: S; poster: S; script: (a: Act<S>) => Promise<void>; cursor?: boolean; children: (s: S) => React.ReactNode }
 
+// Plays only when the card is hovered (mouse) or sits in the middle of the screen (touch); otherwise shows its finished frame.
+function useRun() {
+  const ref = useRef<HTMLDivElement>(null)
+  const [run, setRun] = useState(false)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    if (fine) {
+      const card = el.closest<HTMLElement>('article, a') ?? el
+      const on = () => setRun(true), off = () => setRun(false)
+      card.addEventListener('pointerenter', on)
+      card.addEventListener('pointerleave', off)
+      return () => { card.removeEventListener('pointerenter', on); card.removeEventListener('pointerleave', off) }
+    }
+    const io = new IntersectionObserver(([e]) => setRun(e.isIntersecting), { rootMargin: '-38% 0px -38% 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+  return { ref, run }
+}
+
 function Frame<S extends object>({ initial, poster, script, cursor, children }: FrameProps<S>) {
+  const { ref, run } = useRun()
   return (
-    <div className="art">
-      <Stage width={W} height={H} accent={ACCENT} initial={initial} poster={poster} script={script} cursor={cursor ? { at: { x: 330, y: 270 }, ripple: true } : undefined}>
+    <div className="art" ref={ref}>
+      <Stage width={W} height={H} accent={ACCENT} initial={initial} poster={poster} script={run ? script : undefined} cursor={cursor ? { at: { x: 330, y: 270 }, ripple: true, still: false } : undefined}>
         {children}
       </Stage>
     </div>

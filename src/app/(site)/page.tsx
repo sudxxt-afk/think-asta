@@ -25,12 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const proof = ["Созвон на 30 минут", "План, сроки и цена до старта", "Месяц исправлений бесплатно"];
-const guarantees: [string, string][] = [
-  ["Созвон ни к чему не обязывает", "Полчаса поговорим о задаче. Если мы не подходим, так и скажем и подскажем, куда обратиться."],
-  ["Цена известна до начала работ", "Присылаем план с этапами, сроками и стоимостью каждого. Начать можно с одного этапа и посмотреть на результат."],
-  ["После запуска мы остаёмся", "Первый месяц исправляем найденные ошибки бесплатно, потом помогаем развивать продукт."],
-];
-
 export default async function Home() {
   const [s, services, projects, steps, faq] = await Promise.all([
     getSettings(),
@@ -124,35 +118,21 @@ export default async function Home() {
       <section className="border-t-2 border-ink">
         <HowWeWork steps={steps.map((st) => ({ id: st.id, title: st.title, text: st.text }))} />
         <div className="container-x pb-16">
-          <Link href="/configurator" className="group inline-flex items-center gap-3 font-display text-2xl font-extrabold tracking-tight underline decoration-accent decoration-[5px] underline-offset-[10px] sm:text-3xl">
-            Соберите свою систему в конфигураторе <ArrowRight className="transition group-hover:translate-x-1.5" size={28} />
+          <Link href="/configurator" className="group inline-flex items-center gap-3 font-display text-lg font-extrabold tracking-tight underline decoration-accent decoration-[3px] underline-offset-[7px] sm:text-xl">
+            Соберите свою систему в конфигураторе <ArrowRight className="transition group-hover:translate-x-1.5" size={20} />
           </Link>
         </div>
       </section>
 
-      <section className="section border-t-2 border-ink bg-sunken">
+      <section className="section border-t-2 border-ink">
         <div className="container-x max-w-3xl">
           <h2 className="t-h1">Частые вопросы</h2>
-          <div className="mt-8 space-y-3">
+          <div className="mt-8 border-t border-line">
             {faq.map((f) => (
-              <details key={f.id} className="group rounded-[20px] border-2 border-ink bg-surface p-5">
+              <details key={f.id} className="group border-b border-line py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-extrabold">{f.question}<span className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] border-2 border-ink bg-accent text-xl leading-none transition group-open:rotate-45">+</span></summary>
                 <p className="t-body mt-3">{f.answer}</p>
               </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section border-t-2 border-ink">
-        <div className="container-x">
-          <h2 className="t-h1 max-w-2xl">Чем вы не рискуете</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {guarantees.map(([h, t]) => (
-              <div key={h} className="card tile p-6">
-                <h3 className="t-h3">{h}</h3>
-                <p className="t-body mt-2 text-[.95rem]">{t}</p>
-              </div>
             ))}
           </div>
         </div>

@@ -16,11 +16,11 @@ export function CookieBanner() {
     router.refresh();
   };
   return (
-    <div role="dialog" aria-label="Файлы cookie" className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-3xl rounded-[20px] border-2 border-ink bg-surface p-5 shadow-[6px_6px_0_0_var(--color-ink)]">
-      <p className="text-sm font-medium leading-relaxed">Мы используем cookie, чтобы сайт работал, и, с вашего согласия, аналитику Яндекс Метрики и Google. Подробнее в <Link href="/cookies" className="font-extrabold underline decoration-accent decoration-[3px] underline-offset-4">политике cookie</Link>.</p>
-      <div className="mt-4 flex flex-wrap gap-3">
-        <button onClick={() => choose("all")} className="btn btn-dark btn-sm">Принять всё</button>
-        <button onClick={() => choose("necessary")} className="btn btn-ghost btn-sm">Только необходимые</button>
+    <div role="dialog" aria-label="Файлы cookie" className="fixed bottom-3 left-3 right-3 z-50 flex flex-col gap-3 rounded-[16px] border-2 border-ink bg-surface p-3 text-xs font-medium leading-snug sm:right-auto sm:max-w-sm sm:flex-row sm:items-center sm:text-[13px]">
+      <p>Cookie нужны для работы сайта и, с вашего согласия, для аналитики. <Link href="/cookies" className="font-extrabold underline decoration-accent decoration-2 underline-offset-2">Подробнее</Link></p>
+      <div className="flex shrink-0 gap-2">
+        <button onClick={() => choose("all")} className="btn btn-dark btn-sm !h-8 !px-3 !text-xs">Принять</button>
+        <button onClick={() => choose("necessary")} className="btn btn-ghost btn-sm !h-8 !px-3 !text-xs">Нет</button>
       </div>
     </div>
   );
