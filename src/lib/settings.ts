@@ -11,6 +11,10 @@ export const SETTING_DEFAULTS: Record<string, { label: string; value: string; lo
   email: { label: "Почта", value: "hello@think-asta.ru" },
   telegram: { label: "Telegram", value: "https://t.me/think_asta" },
   address: { label: "Адрес или город", value: "Работаем удалённо по всей России" },
+  legal_name: { label: "Юр.: оператор данных", hint: "ФИО самозанятого или ИП, либо название ООО. Подставляется в политику и согласие", value: "Think-asta" },
+  legal_reg: { label: "Юр.: ИНН / ОГРН(ИП)", hint: "Например: ИНН 123456789012. Если пусто, строка не выводится", value: "" },
+  legal_address: { label: "Юр.: адрес для писем", hint: "Юридический адрес или адрес для обращений. Если пусто, строка не выводится", value: "" },
+  legal_date: { label: "Юр.: дата редакции документов", value: "6 ноября 2026 года" },
   hours: { label: "Время связи", value: "Пн-Пт, с 10:00 до 19:00 по Москве" },
 };
 

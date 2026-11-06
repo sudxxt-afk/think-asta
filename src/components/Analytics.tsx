@@ -1,7 +1,10 @@
 import Script from "next/script";
+import { cookies } from "next/headers";
 
 // Включается переменными YM_ID (Яндекс Метрика) и GA_ID (Google Analytics 4).
-export function Analytics() {
+export async function Analytics() {
+  // Аналитика включается только после согласия в баннере cookie.
+  if ((await cookies()).get("ta_cookies")?.value !== "all") return null;
   const ym = process.env.YM_ID;
   const ga = process.env.GA_ID;
   return (

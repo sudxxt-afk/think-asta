@@ -9,6 +9,7 @@ const schema = z.object({
   message: z.string().trim().max(2000).default(""),
   service: z.string().trim().max(80).default(""),
   website: z.string().max(0).optional(), // honeypot
+  consent: z.literal("on", { message: "Нужно согласие на обработку персональных данных" }),
 });
 
 export type LeadState = { ok: boolean; error?: string };
@@ -16,7 +17,7 @@ export type LeadState = { ok: boolean; error?: string };
 export async function submitLead(_: LeadState, fd: FormData): Promise<LeadState> {
   const parsed = schema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
-  const { website: _h, ...data } = parsed.data;
+  const { website: _h, consent: _c, ...data } = parsed.data;
   await db.lead.create({ data });
   await notifyLead(data);
   return { ok: true };

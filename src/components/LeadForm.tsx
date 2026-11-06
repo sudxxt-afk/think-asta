@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useActionState } from "react";
 import { submitLead, type LeadState } from "@/app/actions";
 
@@ -25,6 +26,10 @@ export function LeadForm({ services }: { services: string[] }) {
         </select>
       </div>
       <div className="field"><label htmlFor="message">Коротко о задаче</label><textarea id="message" name="message" className="textarea" /></div>
+      <label className="flex items-start gap-3 text-sm font-semibold leading-snug">
+        <input type="checkbox" name="consent" required className="mt-0.5 h-5 w-5 shrink-0 accent-[#0b0b0f]" />
+        <span>Даю <Link href="/consent" target="_blank" className="underline underline-offset-2">согласие на обработку персональных данных</Link> и принимаю <Link href="/privacy" target="_blank" className="underline underline-offset-2">политику конфиденциальности</Link></span>
+      </label>
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
       {state.error && <p className="text-sm text-[#c0321c]" role="alert">{state.error}</p>}
       <button className="btn btn-dark" disabled={pending}>{pending ? "Отправляем…" : "Рассказать о задаче"}</button>

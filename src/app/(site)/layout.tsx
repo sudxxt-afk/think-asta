@@ -2,8 +2,11 @@ import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 import { JsonLd, orgLd } from "@/lib/seo";
 import { Analytics } from "@/components/Analytics";
+import { CookieBanner } from "@/components/CookieBanner";
 
 const nav = [["/#services", "Услуги"], ["/projects", "Проекты"], ["/about", "О нас"], ["/blog", "Блог"], ["/contacts", "Контакты"]];
+
+const legal = [["/privacy", "Политика конфиденциальности"], ["/consent", "Согласие на обработку данных"], ["/terms", "Пользовательское соглашение"], ["/cookies", "Cookie"]];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const s = await getSettings();
@@ -30,7 +33,16 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           <div className="text-sm text-white/70"><div>{s.email}</div><div>{s.phone}</div><div>{s.hours}</div></div>
           <div className="text-sm text-white/70"><a href={s.telegram} className="text-accent">Telegram</a><div className="mt-1">{s.address}</div></div>
         </div>
+        <div className="border-t border-white/15">
+          <div className="container-x flex flex-col gap-3 py-6 text-xs text-white/60 md:flex-row md:items-center md:justify-between">
+            <p>© {new Date().getFullYear()} Think-asta. {[s.legal_name, s.legal_reg, s.legal_address].filter(Boolean).join(", ")}</p>
+            <nav className="flex flex-wrap gap-x-5 gap-y-2 font-semibold">
+              {legal.map(([h, l]) => <Link key={h} href={h} className="hover:text-white">{l}</Link>)}
+            </nav>
+          </div>
+        </div>
       </footer>
+      <CookieBanner />
     </>
   );
 }
