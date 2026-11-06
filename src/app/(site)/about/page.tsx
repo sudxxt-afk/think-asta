@@ -3,7 +3,12 @@ import { getSettings } from "@/lib/settings";
 import { paragraphs } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "О нас" };
+export const metadata = {
+  title: "О команде Think-asta: как мы работаем и считаем стоимость",
+  description: "Think-asta это небольшая команда разработчиков и аналитиков. Рассказываем, как строим проекты, из каких этапов они состоят и как считаем стоимость.",
+  alternates: { canonical: "/about" },
+  openGraph: { url: "/about" },
+};
 
 export default async function About() {
   const [s, steps] = await Promise.all([getSettings(), db.step.findMany({ orderBy: { sort: "asc" } })]);

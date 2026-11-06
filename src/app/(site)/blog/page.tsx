@@ -3,7 +3,12 @@ import { db } from "@/lib/db";
 import { fmtDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Блог" };
+export const metadata = {
+  title: "Блог о сайтах, CRM, ИИ и Битрикс24",
+  description: "Статьи Think-asta о разработке сайтов и приложений, внедрении CRM, автоматизации бизнеса и настройке Битрикс24.",
+  alternates: { canonical: "/blog" },
+  openGraph: { url: "/blog" },
+};
 
 export default async function Blog() {
   const posts = await db.post.findMany({ where: { published: true }, orderBy: { publishedAt: "desc" } });

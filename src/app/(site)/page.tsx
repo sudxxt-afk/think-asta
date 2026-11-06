@@ -6,8 +6,20 @@ import { Icon } from "@/components/Icon";
 import { Carousel } from "@/components/Carousel";
 import { ProjectCard } from "@/components/ProjectCard";
 import { LeadForm } from "@/components/LeadForm";
+import { JsonLd, abs } from "@/lib/seo";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const s = await getSettings();
+  return {
+    title: { absolute: s.seo_title },
+    description: s.seo_desc,
+    alternates: { canonical: "/" },
+    openGraph: { title: s.seo_title, description: s.seo_desc, url: "/", type: "website", locale: "ru_RU", siteName: "Think-asta" },
+  };
+}
 
 export default async function Home() {
   const [s, services, projects, steps, faq] = await Promise.all([
@@ -19,8 +31,22 @@ export default async function Home() {
   ]);
 
   const words = ["Сайты", "Приложения", "CRM", "AI", "Bitrix24", "Автоматизации"];
+  const ld = [
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      name: "Услуги Think-asta",
+      itemListElement: services.map((sv, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Service", name: sv.title, description: sv.text, provider: { "@id": abs("/#org") }, areaServed: "RU" } })),
+    },
+    faq.length > 0 && {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faq.map((f) => ({ "@type": "Question", name: f.question, acceptedAnswer: { "@type": "Answer", text: f.answer } })),
+    },
+  ].filter(Boolean) as object[];
   return (
     <>
+      {ld.map((d, i) => <JsonLd key={i} data={d} />)}
       <section className="pt-6 sm:pt-10">
         <div className="container-x">
           <div className="overflow-hidden rounded-[var(--radius-lg)] border-2 border-ink bg-accent px-5 pb-8 pt-6 sm:px-8 sm:pb-10">
@@ -28,7 +54,7 @@ export default async function Home() {
               <span className="chip">Think-asta</span>
               <span className="text-sm font-extrabold">Сайты · приложения · CRM · AI · Bitrix24</span>
             </div>
-            <h1 className="wordmark mt-6 sm:mt-10">Think-asta</h1>
+            <h1 className="wordmark mt-6 sm:mt-10">Think-asta<span className="sr-only"> — разработка сайтов, мобильных приложений, CRM, ИИ-автоматизация и настройка Битрикс24</span></h1>
             <div className="mt-8 flex flex-wrap items-end justify-between gap-8">
               <div className="max-w-2xl">
                 <p className="font-display text-xl font-bold leading-snug tracking-tight sm:text-2xl">{s.hero_title}</p>

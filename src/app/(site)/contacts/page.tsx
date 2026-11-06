@@ -3,7 +3,12 @@ import { getSettings } from "@/lib/settings";
 import { LeadForm } from "@/components/LeadForm";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Контакты" };
+export const metadata = {
+  title: "Контакты и заявка на проект",
+  description: "Свяжитесь с Think-asta: почта, телефон, Telegram и форма заявки. Отвечаем в течение рабочего дня.",
+  alternates: { canonical: "/contacts" },
+  openGraph: { url: "/contacts" },
+};
 
 export default async function Contacts() {
   const [s, services] = await Promise.all([getSettings(), db.service.findMany({ where: { visible: true }, orderBy: { sort: "asc" } })]);

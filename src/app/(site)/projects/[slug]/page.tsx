@@ -1,20 +1,44 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { JsonLd, abs, crumbs } from "@/lib/seo";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const p = await db.project.findUnique({ where: { slug: (await params).slug } });
-  return { title: p?.title ?? "Проект", description: p?.summary };
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const slug = (await params).slug;
+  const p = await db.project.findUnique({ where: { slug } });
+  if (!p || !p.published) return { robots: { index: false } };
+  return {
+    title: `${p.title}: ${p.category}`,
+    description: p.summary,
+    alternates: { canonical: `/projects/${slug}` },
+    openGraph: { type: "article", title: p.title, description: p.summary, url: `/projects/${slug}`, locale: "ru_RU", images: p.cover ? [p.cover] : undefined },
+  };
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const p = await db.project.findUnique({ where: { slug: (await params).slug } });
   if (!p || !p.published) notFound();
   const blocks = [["Задача", p.task], ["Что сделали", p.solution], ["Результат", p.result]].filter(([, t]) => t);
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: p.title,
+    description: p.summary,
+    image: p.cover ? abs(p.cover) : undefined,
+    genre: p.category,
+    keywords: p.tags.join(", "),
+    dateCreated: p.createdAt.toISOString(),
+    inLanguage: "ru-RU",
+    url: abs(`/projects/${p.slug}`),
+    creator: { "@id": abs("/#org") },
+  };
   return (
     <article className="section">
+      <JsonLd data={ld} />
+      <JsonLd data={crumbs([["Главная", "/"], ["Проекты", "/projects"], [p.title, `/projects/${p.slug}`]])} />
       <div className="container-x max-w-3xl">
         <Link href="/projects" className="text-sm text-ink-3 hover:text-accent">← Все проекты</Link>
         <div className="mt-6 flex flex-wrap gap-2"><span className="chip chip-accent">{p.category}</span>{p.tags.map((t) => <span key={t} className="chip">{t}</span>)}</div>

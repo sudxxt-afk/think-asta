@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
+import { JsonLd, orgLd } from "@/lib/seo";
+import { Analytics } from "@/components/Analytics";
 
 const nav = [["/#services", "Услуги"], ["/projects", "Проекты"], ["/about", "О нас"], ["/blog", "Блог"], ["/contacts", "Контакты"]];
 
@@ -7,6 +9,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const s = await getSettings();
   return (
     <>
+      <JsonLd data={orgLd(s)} />
+      <Analytics />
       <header className="sticky top-0 z-30 border-b-2 border-ink bg-bg">
         <div className="container-x flex h-16 items-center justify-between">
           <Link href="/" className="font-display text-lg font-extrabold tracking-tight">Think<span className="text-accent">-</span>asta</Link>
