@@ -137,31 +137,33 @@ function Crm() {
   )
 }
 
-// AI: the request is read, the fields fill in one by one, then it goes to a manager.
+// AI: incoming mail and calls are read one by one, tagged and sent where they belong.
 function Ai() {
-  type S = { n: number; sent: boolean }
+  type S = { n: number }
+  const items: { kind: string; who: string; text: string; tag: string; to: string }[] = [
+    { kind: 'Письмо', who: 'Анна, кофейня «Миндаль»', text: 'Нужен сайт, бюджет около 150 тысяч', tag: 'Заявка', to: 'в CRM' },
+    { kind: 'Звонок', who: '+7 912 ··· 41 08 · 2:14', text: 'Спросили, делаете ли приложения', tag: 'Вопрос', to: 'менеджеру' },
+    { kind: 'Письмо', who: 'Рассылка «Дешёвые лиды»', text: 'Выгодное предложение только сегодня', tag: 'Спам', to: 'в архив' },
+  ]
   const script = async (a: Act<S>) => {
-    await a.wait(1000)
-    for (const n of [1, 2, 3, 4]) { await a.set({ n }); await a.wait(650) }
-    await a.wait(500)
-    await a.set({ sent: true })
+    await a.wait(900)
+    for (const n of [1, 2, 3]) { await a.set({ n }); await a.wait(1000) }
     await a.wait(2400)
-    await a.set({ n: 0, sent: false })
-    await a.wait(600)
+    await a.set({ n: 0 })
+    await a.wait(700)
   }
   return (
-    <Frame<S> initial={{ n: 0, sent: false }} poster={{ n: 4, sent: false }} script={script}>
+    <Frame<S> initial={{ n: 0 }} poster={{ n: 3 }} script={script}>
       {(s) => (
-        <Window title="Новая заявка" className="art-win">
-          <div className="art-pad">
-            <div className="art-quote">«Здравствуйте, нужен сайт для кофейни, бюджет около 150 тысяч, хотим до середины июня»</div>
-            <div className="art-nav"><span className="art-fade" data-on={s.n >= 1 || undefined}><Chip>Разобрано ИИ</Chip></span><Bar w={60} h={6} tone={2} /></div>
-            <div className="art-fields">
-              <div className="art-field art-fade" data-on={s.n >= 2 || undefined}><span>Задача</span><b>Сайт для кофейни</b></div>
-              <div className="art-field art-fade" data-on={s.n >= 3 || undefined}><span>Бюджет</span><b>150 000 ₽</b></div>
-              <div className="art-field art-fade" data-on={s.n >= 4 || undefined}><span>Срок</span><b>до 15 июня</b></div>
-            </div>
-            <div><Button variant="primary">{s.sent ? 'Передано менеджеру' : 'Передать менеджеру'}</Button></div>
+        <Window title="Входящие" className="art-win">
+          <div className="art-pad" style={{ gap: 8 }}>
+            {items.map((it, i) => (
+              <div key={it.who} className="art-mail" data-done={s.n > i || undefined} data-spam={it.tag === 'Спам' || undefined}>
+                <div className="art-mail-l"><small>{it.kind}</small><b>{it.who}</b><span>{it.text}</span></div>
+                <div className="art-mail-r art-fade" data-on={s.n > i || undefined}><Chip>{it.tag}</Chip><small>{it.to}</small></div>
+              </div>
+            ))}
+            <div className="art-nav" style={{ marginTop: 2 }}><Text style={{ fontSize: 12 }}>{`Разобрано: ${s.n} из 3`}</Text><Bar w={80} h={6} tone={2} /></div>
           </div>
         </Window>
       )}

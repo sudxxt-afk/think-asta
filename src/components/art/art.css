@@ -56,3 +56,25 @@
 .art-new { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .5s, opacity .5s; }
 .art-new > * { overflow: hidden; min-height: 0; }
 .art-new[data-show] { grid-template-rows: 1fr; opacity: 1; }
+.art-overlay { position: absolute; inset: 0; z-index: 20; background: var(--ss-accent, #ff5a4e); visibility: hidden; transition: clip-path .6s cubic-bezier(.2,.7,.2,1); overflow: hidden; }
+.art-overlay[data-shown] { visibility: visible; }
+.art-full { height: 100%; }
+.art-full .ss-stage { background: transparent; }
+.art-crm { display: flex; height: 100%; }
+.art-side { flex: 0 0 168px; padding: 18px 12px; border-right: 1px solid var(--ss-line); display: flex; flex-direction: column; gap: 4px; background: var(--ss-canvas); }
+.art-nav-i { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 13px; font-weight: 700; color: var(--ss-ink-2, #55555f); }
+.art-nav-i[data-on] { background: var(--ss-surface); color: var(--ss-ink, #0b0b0f); box-shadow: 0 0 0 1px var(--ss-line); }
+.art-main { flex: 1; min-width: 0; padding: 18px 20px; display: flex; flex-direction: column; gap: 16px; }
+.art-top { display: flex; align-items: center; gap: 16px; }
+.art-rev { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; font-size: 11px; color: var(--ss-ink-2, #55555f); }
+.art-rev b { font-size: 20px; color: var(--ss-ink, #0b0b0f); font-weight: 800; }
+.art-cols4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; flex: 1; }
+.art-cols4 .art-deal { padding: 12px; font-size: 13px; }
+.art-cols4 .art-deal b { font-size: 13px; }
+.art-mail { display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid var(--ss-line); border-radius: 10px; padding: 9px 12px; background: var(--ss-surface); transition: border-color .4s, opacity .4s; }
+.art-mail[data-done] { border-color: var(--ss-accent); }
+.art-mail[data-spam][data-done] { border-color: var(--ss-line); opacity: .55; }
+.art-mail-l { display: flex; flex-direction: column; gap: 1px; min-width: 0; font-size: 12px; }
+.art-mail-l small, .art-mail-r small { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--ss-ink-2, #55555f); font-weight: 700; }
+.art-mail-l span { color: var(--ss-ink-2, #55555f); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.art-mail-r { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex: none; }

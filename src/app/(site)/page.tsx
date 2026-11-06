@@ -6,7 +6,7 @@ import { Icon } from "@/components/Icon";
 import { Carousel } from "@/components/Carousel";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ServiceArt } from "@/components/art/ServiceArt";
-import { HeroDemo } from "@/components/art/HeroDemo";
+import { HeroShowcase } from "@/components/art/HeroShowcase";
 import { LeadForm } from "@/components/LeadForm";
 import { JsonLd, abs } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -51,7 +51,7 @@ export default async function Home() {
       {ld.map((d, i) => <JsonLd key={i} data={d} />)}
       <section className="pt-6 sm:pt-10">
         <div className="container-x">
-          <div className="overflow-hidden rounded-[var(--radius-lg)] border-2 border-ink bg-accent px-5 pb-8 pt-6 sm:px-8 sm:pb-10">
+          <div data-plate className="relative overflow-hidden rounded-[var(--radius-lg)] border-2 border-ink bg-accent px-5 pb-8 pt-6 sm:px-8 sm:pb-10">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="chip">Think-asta</span>
               <span className="text-sm font-extrabold">Сайты · приложения · CRM · AI · Bitrix24</span>
@@ -66,7 +66,7 @@ export default async function Home() {
                   <Link href="/projects" className="btn btn-ghost">Смотреть проекты</Link>
                 </div>
               </div>
-              <div className="-mb-8 -mr-5 sm:-mb-10 sm:-mr-8 lg:mr-[-2rem]" aria-hidden><HeroDemo /></div>
+              <div className="-mb-8 -mr-5 sm:-mb-10 sm:-mr-8 lg:mr-[-2rem]" aria-hidden><HeroShowcase /></div>
             </div>
           </div>
         </div>
