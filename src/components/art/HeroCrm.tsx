@@ -32,14 +32,17 @@ function Deal({ a, b, hot, hide, target }: { a: string; b: string; hot?: boolean
   return <div className="art-deal" data-target={target} data-hot={hot || undefined} data-gone={hide || undefined}><b>{a}</b><span>{b}</span></div>
 }
 
-export function HeroCrm() {
+const W = 1100
+
+export function HeroCrm({ aspect, paused }: { aspect: number; paused?: boolean }) {
+  const H = Math.max(520, Math.round(W * aspect))
   return (
     <div className="art art-full">
-      <Stage width={1100} height={640} fill initial={initial} poster={poster} script={script} accent="#ff5a4e" cursor={{ at: { x: 760, y: 560 }, ripple: true }}>
+      <Stage width={W} height={H} fill play={paused ? 'hover' : 'loop'} initial={initial} poster={poster} script={script} accent="#ff5a4e" cursor={{ at: { x: 760, y: 470 }, ripple: true }}>
         {(s) => (
           <>
             <div className="art-toast" data-hide={!s.toast || undefined} style={{ right: 40, top: 28 }}><i />Новая заявка с сайта</div>
-            <Window title="Think-asta CRM" className="art-win" style={{ top: 64, left: 40, width: 1040, height: 640 }}>
+            <Window title="Think-asta CRM" className="art-win" style={{ top: 64, left: 40, width: 1040, height: H }}>
               <div className="art-crm">
                 <aside className="art-side">
                   {['Сделки', 'Клиенты', 'Задачи', 'Отчёты', 'Почта'].map((t, i) => (

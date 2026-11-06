@@ -10,6 +10,8 @@ export function HeroShowcase() {
   const [inset, setInset] = useState('inset(40% 0 0 60% round 10px)')
   const [open, setOpen] = useState(false)
   const [shown, setShown] = useState(false)
+  const [ready, setReady] = useState(false)
+  const [aspect, setAspect] = useState(0.55)
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   const canHover = () => window.matchMedia('(hover: hover) and (min-width: 1024px)').matches
@@ -31,7 +33,17 @@ export function HeroShowcase() {
     setOpen(false)
     timer.current = setTimeout(() => setShown(false), 650)
   }
-  useEffect(() => () => clearTimeout(timer.current), [])
+  // Keep the full CRM mounted and sized to the plate ahead of time, so opening never re-fits it.
+  useEffect(() => {
+    const plate = cell.current?.closest<HTMLElement>('[data-plate]')
+    if (!plate) return
+    const measure = () => setAspect(plate.clientHeight / plate.clientWidth)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(plate)
+    const id = requestAnimationFrame(() => setReady(true))
+    return () => { ro.disconnect(); cancelAnimationFrame(id); clearTimeout(timer.current) }
+  }, [])
 
   return (
     <div ref={cell} onPointerEnter={enter} className="art-cell">
@@ -43,7 +55,7 @@ export function HeroShowcase() {
         style={{ clipPath: open ? 'inset(0px 0px 0px 0px round 0px)' : inset }}
         onPointerLeave={leave}
       >
-        {shown && <HeroCrm />}
+        {ready && <HeroCrm aspect={aspect} paused={!shown} />}
       </div>
     </div>
   )
