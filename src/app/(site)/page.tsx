@@ -5,6 +5,8 @@ import { getSettings } from "@/lib/settings";
 import { Icon } from "@/components/Icon";
 import { Carousel } from "@/components/Carousel";
 import { ProjectCard } from "@/components/ProjectCard";
+import { ServiceArt } from "@/components/art/ServiceArt";
+import { HeroDemo } from "@/components/art/HeroDemo";
 import { LeadForm } from "@/components/LeadForm";
 import { JsonLd, abs } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -55,15 +57,16 @@ export default async function Home() {
               <span className="text-sm font-extrabold">Сайты · приложения · CRM · AI · Bitrix24</span>
             </div>
             <h1 className="wordmark mt-6 sm:mt-10">Think-asta<span className="sr-only"> — разработка сайтов, мобильных приложений, CRM, ИИ-автоматизация и настройка Битрикс24</span></h1>
-            <div className="mt-8 flex flex-wrap items-end justify-between gap-8">
+            <div className="mt-8 grid items-end gap-8 lg:grid-cols-[1fr_440px]">
               <div className="max-w-2xl">
                 <p className="font-display text-xl font-bold leading-snug tracking-tight sm:text-2xl">{s.hero_title}</p>
                 <p className="mt-3 text-[1.05rem] font-semibold leading-relaxed">{s.hero_text}</p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <Link href="/contacts#form" className="btn btn-dark">Рассказать о задаче <ArrowRight size={18} /></Link>
+                  <Link href="/projects" className="btn btn-ghost">Смотреть проекты</Link>
+                </div>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/contacts#form" className="btn btn-dark">Рассказать о задаче <ArrowRight size={18} /></Link>
-                <Link href="/projects" className="btn btn-ghost">Смотреть проекты</Link>
-              </div>
+              <div className="-mb-8 -mr-5 sm:-mb-10 sm:-mr-8 lg:mr-[-2rem]" aria-hidden><HeroDemo /></div>
             </div>
           </div>
         </div>
@@ -78,7 +81,8 @@ export default async function Home() {
           <h2 className="t-h1 max-w-2xl">Чем мы занимаемся</h2>
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {services.map((sv, i) => (
-              <article key={sv.id} className="card tile p-6">
+              <article key={sv.id} className="card tile overflow-hidden p-6">
+                <div className="-mx-6 -mt-6 mb-6 border-b-2 border-ink" aria-hidden><ServiceArt service={sv.key} /></div>
                 <div className="flex items-center justify-between">
                   <span className="chip">{String(i + 1).padStart(2, "0")}</span>
                   <Icon name={sv.icon} className="h-6 w-6" />

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { Project } from "@prisma/client";
+import { ServiceArt } from "@/components/art/ServiceArt";
 
 export function ProjectCard({ p }: { p: Project }) {
   return (
@@ -10,7 +11,7 @@ export function ProjectCard({ p }: { p: Project }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={p.cover} alt={p.title} className="h-full w-full object-cover" loading="lazy" />
         ) : (
-          <div className="font-display flex h-full items-end bg-accent p-5 text-6xl font-extrabold tracking-tighter text-ink">{p.title.slice(0, 1)}</div>
+          <ServiceArt category={p.category} />
         )}
       </div>
       <div className="p-5">
