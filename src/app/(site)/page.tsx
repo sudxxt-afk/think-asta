@@ -6,6 +6,7 @@ import { Icon } from "@/components/Icon";
 import { Carousel } from "@/components/Carousel";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ServiceArt } from "@/components/art/ServiceArt";
+import { HowWeWork } from "@/components/HowWeWork";
 import { HeroShowcase } from "@/components/art/HeroShowcase";
 import { LeadForm } from "@/components/LeadForm";
 import { JsonLd, abs } from "@/lib/seo";
@@ -120,18 +121,9 @@ export default async function Home() {
         </section>
       )}
 
-      <section className="section">
-        <div className="container-x">
-          <h2 className="t-h1 max-w-2xl">Как мы работаем</h2>
-          <ol className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-5">
-            {steps.map((st, i) => (
-              <li key={st.id} className="card tile p-5">
-                <span className="chip">0{i + 1}</span>
-                <h3 className="t-h3 mt-4">{st.title}</h3>
-                <p className="t-body mt-2 text-sm">{st.text}</p>
-              </li>
-            ))}
-          </ol>
+      <section className="border-t-2 border-ink">
+        <HowWeWork steps={steps.map((st) => ({ id: st.id, title: st.title, text: st.text }))} />
+        <div className="container-x pb-16">
           <p className="t-body mt-8 max-w-2xl">{s.cost_text.split(/\n\s*\n/)[0]} <Link href="/about#cost" className="font-extrabold text-ink underline decoration-accent decoration-[3px] underline-offset-4">Как считаем стоимость</Link></p>
         </div>
       </section>
