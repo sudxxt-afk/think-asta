@@ -78,9 +78,14 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 .marquee > div { display: inline-block; padding-block: 14px; animation: marquee 28s linear infinite; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
 .marquee span { margin-inline: 1.1em; }
 @keyframes marquee { to { transform: translateX(-50%); } }
-.tile { transition: background .15s, color .15s; }
-.tile:hover { background: var(--color-ink); color: #fff; }
+/* Black floods the card from where the pointer entered, over .8s */
+.tile { position: relative; isolation: isolate; transition: color .8s ease; }
+.tile::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--color-ink); clip-path: circle(0% at var(--x, 50%) var(--y, 50%)); transition: clip-path .8s cubic-bezier(.4, 0, .2, 1); }
+.tile:hover::before { clip-path: circle(150% at var(--x, 50%) var(--y, 50%)); }
+.tile:hover { color: #fff; }
+.tile .t-body, .tile li { transition: color .8s ease; }
 .tile:hover .t-body, .tile:hover li { color: #d8d8e0; }
+@media (prefers-reduced-motion: reduce) { .tile, .tile::before, .tile .t-body, .tile li { transition-duration: .01s; } }
 
 /* Admin uses the same system, quieter */
 .admin .card { border: 1px solid var(--color-line); border-radius: var(--radius-md); }

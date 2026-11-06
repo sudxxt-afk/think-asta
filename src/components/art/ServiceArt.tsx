@@ -19,7 +19,12 @@ function useRun() {
     const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
     if (fine) {
       const card = el.closest<HTMLElement>('article, a') ?? el
-      const on = () => setRun(true), off = () => setRun(false)
+      const at = (e: PointerEvent) => {
+        const r = card.getBoundingClientRect()
+        card.style.setProperty('--x', `${e.clientX - r.left}px`)
+        card.style.setProperty('--y', `${e.clientY - r.top}px`)
+      }
+      const on = (e: PointerEvent) => { at(e); setRun(true) }, off = (e: PointerEvent) => { at(e); setRun(false) }
       card.addEventListener('pointerenter', on)
       card.addEventListener('pointerleave', off)
       return () => { card.removeEventListener('pointerenter', on); card.removeEventListener('pointerleave', off) }
@@ -46,9 +51,9 @@ function Frame<S extends object>({ initial, poster, script, cursor, children }: 
 function Site() {
   type S = { sent: boolean }
   const script = async (a: Act<S>) => {
-    await a.wait(1200)
+    await a.wait(60)
     await a.move('go')
-    await a.wait(300)
+    await a.wait(200)
     await a.click()
     await a.set({ sent: true })
     await a.wait(2800)
@@ -56,7 +61,7 @@ function Site() {
     await a.wait(600)
   }
   return (
-    <Frame<S> initial={{ sent: false }} poster={{ sent: true }} script={script} cursor>
+    <Frame<S> initial={{ sent: false }} poster={{ sent: false }} script={script} cursor>
       {(s) => (
         <Window url="remont-pro.ru" className="art-win">
           <div className="art-pad">
@@ -88,9 +93,9 @@ function Site() {
 function App() {
   type S = { again: boolean }
   const script = async (a: Act<S>) => {
-    await a.wait(1200)
+    await a.wait(60)
     await a.move('again')
-    await a.wait(300)
+    await a.wait(200)
     await a.click()
     await a.set({ again: true })
     await a.wait(2800)
@@ -98,7 +103,7 @@ function App() {
     await a.wait(600)
   }
   return (
-    <Frame<S> initial={{ again: false }} poster={{ again: true }} script={script} cursor>
+    <Frame<S> initial={{ again: false }} poster={{ again: false }} script={script} cursor>
       {(s) => (
         <Phone width={230} className="art-phone">
           <div className="art-list">
@@ -124,9 +129,9 @@ function Deal({ a, b, hot, hide }: { a: string; b: string; hot?: boolean; hide?:
 function Crm() {
   type S = { paid: boolean }
   const script = async (a: Act<S>) => {
-    await a.wait(1200)
+    await a.wait(60)
     await a.move('deal')
-    await a.wait(300)
+    await a.wait(200)
     await a.click()
     await a.set({ paid: true })
     await a.wait(2800)
@@ -134,7 +139,7 @@ function Crm() {
     await a.wait(600)
   }
   return (
-    <Frame<S> initial={{ paid: false }} poster={{ paid: true }} script={script} cursor>
+    <Frame<S> initial={{ paid: false }} poster={{ paid: false }} script={script} cursor>
       {(s) => (
         <Window title="Сделки" className="art-win">
           <div className="art-cols">
@@ -170,14 +175,14 @@ function Ai() {
     { kind: 'Письмо', who: 'Рассылка «Дешёвые лиды»', text: 'Выгодное предложение только сегодня', tag: 'Спам', to: 'в архив' },
   ]
   const script = async (a: Act<S>) => {
-    await a.wait(900)
-    for (const n of [1, 2, 3]) { await a.set({ n }); await a.wait(1000) }
+    await a.wait(250)
+    for (const n of [2, 3]) { await a.set({ n }); await a.wait(950) }
     await a.wait(2400)
-    await a.set({ n: 0 })
+    await a.set({ n: 1 })
     await a.wait(700)
   }
   return (
-    <Frame<S> initial={{ n: 0 }} poster={{ n: 3 }} script={script}>
+    <Frame<S> initial={{ n: 1 }} poster={{ n: 1 }} script={script}>
       {(s) => (
         <Window title="Входящие" className="art-win">
           <div className="art-pad" style={{ gap: 8 }}>
@@ -200,14 +205,14 @@ function Bitrix() {
   type S = { n: number }
   const rows: [string, number, string][] = [['Заявка', 100, '48'], ['Звонок', 72, '35'], ['КП', 46, '22'], ['Оплата', 24, '11']]
   const script = async (a: Act<S>) => {
-    await a.wait(900)
-    for (const n of [1, 2, 3, 4]) { await a.set({ n }); await a.wait(550) }
+    await a.wait(250)
+    for (const n of [2, 3, 4]) { await a.set({ n }); await a.wait(550) }
     await a.wait(2600)
-    await a.set({ n: 0 })
+    await a.set({ n: 1 })
     await a.wait(700)
   }
   return (
-    <Frame<S> initial={{ n: 0 }} poster={{ n: 4 }} script={script}>
+    <Frame<S> initial={{ n: 1 }} poster={{ n: 1 }} script={script}>
       {(s) => (
         <Window title="Воронка продаж" className="art-win">
           <div className="art-pad" style={{ gap: 14 }}>
@@ -231,15 +236,15 @@ function Bitrix() {
 function Auto() {
   type S = { step: number }
   const script = async (a: Act<S>) => {
-    await a.wait(900)
-    for (const step of [1, 2, 3]) { await a.set({ step }); await a.wait(900) }
+    await a.wait(250)
+    for (const step of [2, 3]) { await a.set({ step }); await a.wait(900) }
     await a.wait(1800)
-    await a.set({ step: 0 })
+    await a.set({ step: 1 })
     await a.wait(700)
   }
   const nodes: [string, string][] = [['Заявка с сайта', 'Форма на лендинге'], ['Сделка в Битрикс24', 'Создаётся сама'], ['Задача менеджеру', 'Позвонить в течение часа']]
   return (
-    <Frame<S> initial={{ step: 0 }} poster={{ step: 3 }} script={script}>
+    <Frame<S> initial={{ step: 1 }} poster={{ step: 1 }} script={script}>
       {(s) => (
         <Window title="Робот" className="art-win">
           <div className="art-flow">
