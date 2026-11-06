@@ -29,3 +29,13 @@ npm run dev
 - У каждой страницы свои title, description, canonical и Open Graph. Заголовок и описание главной правятся в админке («Тексты и контакты»), у статей есть поля SEO title и description.
 - Структурированные данные (JSON-LD): ProfessionalService и WebSite на всех страницах, ItemList услуг и FAQPage на главной, Article и BreadcrumbList у статей, CreativeWork и BreadcrumbList у проектов.
 - После выкладки: добавьте сайт в Яндекс Вебмастер и Google Search Console, отправьте `/sitemap.xml`, в Вебмастере укажите регион (раздел «Региональность») и подключите Яндекс Бизнес.
+
+## Deploy
+
+On a fresh Debian/Ubuntu/Fedora server, as root or a sudo user:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/sudxxt-afk/think-asta/main/deploy/install.sh | bash
+```
+
+Installs Docker, replaces nginx/apache with Caddy (automatic HTTPS on `<ip>.sslip.io`), starts Postgres + app, prints the admin login. Re-run it to update. Options: `--domain example.com`, `--pubkey "ssh-ed25519 ..."`.
