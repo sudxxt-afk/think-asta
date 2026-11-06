@@ -110,14 +110,23 @@ export async function savePost(fd: FormData) {
 export async function deletePost(id: string) { await requireAdmin(); await db.post.delete({ where: { id } }); bump(); }
 
 /* Leads & settings */
-export async function setLeadStatus(id: string, status: string) { await requireAdmin(); await db.lead.update({ where: { id }, data: { status } }); revalidatePath("/admin/leads"); }
-export async function deleteLead(id: string) { await requireAdmin(); await db.lead.delete({ where: { id } }); revalidatePath("/admin/leads"); }
+const LEAD_STATUSES = ["new", "work", "done", "lost"];
+const bumpLeads = () => { revalidatePath("/admin", "layout"); };
+export async function setLeadStatus(id: string, status: string) {
+  await requireAdmin();
+  if (!LEAD_STATUSES.includes(status)) return;
+  await db.lead.update({ where: { id }, data: { status } });
+  bumpLeads();
+}
+export async function setLeadNote(id: string, note: string) { await requireAdmin(); await db.lead.update({ where: { id }, data: { note: note.slice(0, 4000) } }); bumpLeads(); }
+export async function deleteLead(id: string) { await requireAdmin(); await db.lead.delete({ where: { id } }); bumpLeads(); }
 
 export async function saveSettings(fd: FormData) {
   await requireAdmin();
   await db.$transaction(Object.keys(SETTING_DEFAULTS).map((key) =>
     db.setting.upsert({ where: { key }, update: { value: str(fd, key) }, create: { key, value: str(fd, key) } })));
   bump();
+  redirect("/admin/settings?saved=1");
 }
 
 /* Legal texts & configurator */

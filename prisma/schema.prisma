@@ -84,6 +84,7 @@ model Lead {
   landing   String   @default("")
   consentAt  DateTime?
   consentDoc String   @default("")
+  note      String   @default("")
   createdAt DateTime @default(now())
 }
 

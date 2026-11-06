@@ -1,4 +1,6 @@
 import { db } from "@/lib/db";
+import { PageHead } from "@/components/admin/PageHead";
+import { sourceLabel } from "@/components/admin/lead-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +21,7 @@ export default async function Stats() {
   visits.forEach((v) => perDay.set(day(v.createdAt), (perDay.get(day(v.createdAt)) ?? 0) + 1));
   const max = Math.max(1, ...perDay.values());
 
-  const label = (s: string) => s || "не определён";
+  const label = (s: string) => sourceLabel(s);
   const src = new Map<string, { visitors: number; views: number; leads: number }>();
   const row = (k: string) => src.get(k) ?? src.set(k, { visitors: 0, views: 0, leads: 0 }).get(k)!;
   visits.forEach((v) => { const r = row(label(v.source)); r.views++; if (v.newVisitor) r.visitors++; });
@@ -45,25 +47,24 @@ export default async function Stats() {
 
   return (
     <>
-      <h1 className="t-h1">Статистика</h1>
-      <p className="t-body mt-2 text-sm">За {DAYS} дней. Считаются только посетители, которые приняли аналитические cookie: остальных мы не отслеживаем по закону, поэтому реальный трафик больше. Заявки считаются все.</p>
+      <PageHead title="Статистика" text={<>За {DAYS} дней. Считаются только посетители, которые приняли аналитические cookie: остальных мы не отслеживаем по закону, поэтому реальный трафик больше. Заявки считаются все.</>} />
 
-      <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-        {kpi.map(([l, n, h]) => <div key={l} className="card p-5"><div className="text-3xl font-semibold">{n}</div><div className="t-body mt-1 text-sm">{l}</div>{h && <div className="mt-1 text-xs text-ink-3">{h}</div>}</div>)}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        {kpi.map(([l, n, h]) => <div key={l} className="adm-kpi"><span className="adm-kpi-label">{l}</span><span className="adm-kpi-value">{n}</span>{h && <span className="adm-kpi-foot">{h}</span>}</div>)}
       </div>
 
-      <section className="card mt-6 p-5">
+      <section className="adm-panel mt-3">
         <h2 className="t-h3">Просмотры по дням</h2>
         <div className="mt-4 flex h-32 items-end gap-[3px]" role="img" aria-label="График просмотров по дням">
           {[...perDay.entries()].map(([d, n]) => (
-            <div key={d} title={`${d}: ${n}`} className="flex-1 rounded-t-[3px] bg-accent" style={{ height: `${Math.max(n ? 4 : 1, (n / max) * 100)}%`, opacity: n ? 1 : 0.25 }} />
+            <div key={d} title={`${d}: ${n}`} className="flex-1 rounded-t-[3px] bg-ink" style={{ height: `${Math.max(n ? 4 : 1, (n / max) * 100)}%`, opacity: n ? 1 : 0.25 }} />
           ))}
         </div>
         <div className="mt-1 flex justify-between text-xs text-ink-3"><span>{[...perDay.keys()][0].slice(5)}</span><span>сегодня</span></div>
       </section>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[3fr_2fr]">
-        <section className="card p-5">
+      <div className="mt-3 grid gap-3 lg:grid-cols-[3fr_2fr]">
+        <section className="adm-panel">
           <h2 className="t-h3">Источники заявок</h2>
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -79,14 +80,14 @@ export default async function Stats() {
           <p className="mt-3 text-xs text-ink-3">«Не определён»: заявки от тех, кто не принимал cookie или пришёл до включения учёта. Метки UTM (utm_source, utm_medium, utm_campaign) подхватываются автоматически.</p>
         </section>
 
-        <div className="space-y-6">
-          <section className="card p-5">
+        <div className="space-y-3">
+          <section className="adm-panel">
             <h2 className="t-h3">Согласие на cookie</h2>
             <div className="mt-3 flex h-3 overflow-hidden rounded-full bg-sunken"><div className="bg-accent" style={{ width: pct(yes, consents.length) === "—" ? 0 : `${(yes / consents.length) * 100}%` }} /></div>
             <p className="mt-2 text-sm">Принять: {yes} · Только необходимые: {no}</p>
             <p className="mt-1 text-xs text-ink-3">Заявок с записанным временем согласия: {withConsent} из {leads.length}.</p>
           </section>
-          <section className="card p-5">
+          <section className="adm-panel">
             <h2 className="t-h3">Популярные страницы</h2>
             <ul className="mt-3 space-y-1 text-sm">
               {top.length === 0 && <li className="text-ink-3">Данных пока нет.</li>}
