@@ -109,3 +109,27 @@ model Setting {
   key   String @id
   value String
 }
+
+model Outreach {
+  id        String   @id @default(cuid())
+  name      String
+  company   String   @default("")
+  contact   String
+  channel   String   @default("telegram")
+  message   String   @default("")
+  status    String   @default("sent")
+  followUp  DateTime?
+  createdAt DateTime @default(now())
+  events    OutreachEvent[]
+}
+
+model OutreachEvent {
+  id         String   @id @default(cuid())
+  outreach   Outreach @relation(fields: [outreachId], references: [id], onDelete: Cascade)
+  outreachId String
+  kind       String
+  text       String   @default("")
+  createdAt  DateTime @default(now())
+
+  @@index([outreachId])
+}

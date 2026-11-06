@@ -155,3 +155,46 @@ export async function resetConfigurator() {
   bump();
   redirect("/admin/configurator");
 }
+
+/* Outreach: people we contacted first */
+const OUT_STATUSES = ["sent", "replied", "talk", "won", "ignored"];
+const OUT_LABEL: Record<string, string> = { sent: "Написали", replied: "Ответили", talk: "Переговоры", won: "Договорились", ignored: "Игнор" };
+const bumpOut = () => { revalidatePath("/admin/leads"); };
+
+export async function addOutreach(fd: FormData) {
+  await requireAdmin();
+  const name = str(fd, "name"), contact = str(fd, "contact");
+  if (name.length < 2 || contact.length < 3) return;
+  const follow = str(fd, "followUp");
+  const message = str(fd, "message").slice(0, 3000);
+  await db.outreach.create({
+    data: {
+      name: name.slice(0, 100), company: str(fd, "company").slice(0, 100), contact: contact.slice(0, 150),
+      channel: ["telegram", "email", "phone", "vk", "other"].includes(str(fd, "channel")) ? str(fd, "channel") : "other",
+      message, followUp: follow ? new Date(follow) : null,
+      events: { create: { kind: "status", text: message ? `Написали: ${message}` : "Написали первыми" } },
+    },
+  });
+  bumpOut();
+}
+export async function setOutreachStatus(id: string, status: string) {
+  await requireAdmin();
+  if (!OUT_STATUSES.includes(status)) return;
+  const cur = await db.outreach.findUnique({ where: { id }, select: { status: true } });
+  if (!cur || cur.status === status) return;
+  await db.outreach.update({ where: { id }, data: { status, events: { create: { kind: "status", text: OUT_LABEL[status] } } } });
+  bumpOut();
+}
+export async function addOutreachNote(id: string, text: string) {
+  await requireAdmin();
+  const t = text.trim().slice(0, 2000);
+  if (!t) return;
+  await db.outreachEvent.create({ data: { outreachId: id, kind: "note", text: t } });
+  bumpOut();
+}
+export async function setOutreachFollowUp(id: string, date: string) {
+  await requireAdmin();
+  await db.outreach.update({ where: { id }, data: { followUp: date ? new Date(date) : null } });
+  bumpOut();
+}
+export async function deleteOutreach(id: string) { await requireAdmin(); await db.outreach.delete({ where: { id } }); bumpOut(); }

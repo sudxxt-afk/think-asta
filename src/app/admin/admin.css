@@ -186,3 +186,27 @@ a.adm-kpi:hover { transform: translateY(-2px); box-shadow: var(--adm-lift); }
   .adm-panel { padding: 16px; }
   .kb-count { width: 100%; margin-left: 2px; }
 }
+
+/* Outreach statuses */
+[data-st="sent"] { --st: #5b8def; --st-soft: #e3ecff; }
+[data-st="replied"] { --st: #f2a516; --st-soft: #fff1d6; }
+[data-st="talk"] { --st: #9b6bff; --st-soft: #efe7ff; }
+[data-st="won"] { --st: #1f9d63; --st-soft: #dcf3e7; }
+[data-st="ignored"] { --st: #9a9aa0; --st-soft: #ececea; }
+.kb-board[data-cols="5"] { grid-auto-columns: minmax(220px, 1fr); }
+.dr-seg[data-n="5"] { grid-template-columns: repeat(3, 1fr); }
+.dr-seg[data-n="5"] button { font-size: .76rem; }
+.tl { position: relative; display: flex; flex-direction: column; gap: 14px; padding-left: 18px; }
+.tl::before { content: ""; position: absolute; left: 4px; top: 6px; bottom: 6px; width: 2px; background: var(--adm-line); border-radius: 2px; }
+.tl li { position: relative; font-size: .86rem; line-height: 1.45; }
+.tl li::before { content: ""; position: absolute; left: -18px; top: 5px; width: 10px; height: 10px; border-radius: 999px; background: var(--st, #c9c9c0); box-shadow: 0 0 0 3px #fff; }
+.tl li[data-note]::before { background: #fff; box-shadow: inset 0 0 0 2px #c9c9c0, 0 0 0 3px #fff; }
+.tl time { display: block; font-size: .72rem; font-weight: 600; color: #8a8a90; }
+.out-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 48px 0 16px; padding-top: 28px; border-top: 1px solid var(--adm-line); }
+.out-head h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; font-size: 1.5rem; }
+.out-flags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; font-size: .8rem; font-weight: 700; }
+.out-flags span { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: #fff; box-shadow: var(--adm-shadow); }
+.out-form { display: grid; gap: 12px; }
+.out-form label { font-size: .78rem; font-weight: 800; display: grid; gap: 5px; }
+.out-form input, .out-form textarea, .out-form select { width: 100%; border-radius: 11px; padding: 9px 12px; font: inherit; font-size: .9rem; font-weight: 500; background: #fff; box-shadow: inset 0 0 0 1px var(--adm-line); outline: none; border: 0; }
+.out-form input:focus, .out-form textarea:focus, .out-form select:focus { box-shadow: inset 0 0 0 1.5px var(--color-ink), 0 0 0 4px var(--color-accent-soft); }
