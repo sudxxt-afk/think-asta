@@ -10,7 +10,8 @@ export const metadata = {
   openGraph: { url: "/contacts" },
 };
 
-export default async function Contacts() {
+export default async function Contacts({ searchParams }: { searchParams: Promise<{ scheme?: string }> }) {
+  const { scheme } = await searchParams;
   const [s, services] = await Promise.all([getSettings(), db.service.findMany({ where: { visible: true }, orderBy: { sort: "asc" } })]);
   return (
     <section className="section">
@@ -25,7 +26,7 @@ export default async function Contacts() {
             <div><dt className="text-sm text-ink-3">Где мы</dt><dd className="text-ink">{s.address}</dd></div>
           </dl>
         </div>
-        <div id="form"><LeadForm services={services.map((x) => x.title)} /></div>
+        <div id="form"><LeadForm services={services.map((x) => x.title)} defaultMessage={scheme ? `Хочу обсудить схему из конфигуратора: ${scheme.slice(0, 300)}.` : ""} /></div>
       </div>
     </section>
   );

@@ -4,7 +4,7 @@ import { JsonLd, orgLd } from "@/lib/seo";
 import { Analytics } from "@/components/Analytics";
 import { CookieBanner } from "@/components/CookieBanner";
 
-const nav = [["/#services", "Услуги"], ["/projects", "Проекты"], ["/about", "О нас"], ["/blog", "Блог"], ["/contacts", "Контакты"]];
+const nav = [["/#services", "Услуги"], ["/configurator", "Конфигуратор"], ["/projects", "Проекты"], ["/about", "О нас"], ["/blog", "Блог"], ["/contacts", "Контакты"]];
 
 const legal = [["/privacy", "Политика конфиденциальности"], ["/consent", "Согласие на обработку данных"], ["/terms", "Пользовательское соглашение"], ["/cookies", "Cookie"]];
 
@@ -18,12 +18,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <div className="container-x flex h-16 items-center justify-between">
           <Link href="/" className="font-display text-lg font-extrabold tracking-tight">Think<span className="text-accent">-</span>asta</Link>
           <nav className="hidden gap-7 text-sm font-bold text-ink md:flex">
-            {nav.map(([h, l]) => <Link key={h} href={h} className="hover:text-accent-hover">{l}</Link>)}
+            {nav.map(([h, l]) => <Link key={h} href={h} className={h === "/configurator" ? "underline decoration-accent decoration-[3px] underline-offset-[6px] hover:text-accent-hover" : "hover:text-accent-hover"}>{l}</Link>)}
           </nav>
           <Link href="/contacts#form" className="btn btn-primary btn-sm">Обсудить проект</Link>
         </div>
         <nav className="container-x flex gap-5 overflow-x-auto pb-3 text-sm font-bold text-ink md:hidden">
-          {nav.map(([h, l]) => <Link key={h} href={h} className="whitespace-nowrap">{l}</Link>)}
+          {nav.map(([h, l]) => <Link key={h} href={h} className={h === "/configurator" ? "whitespace-nowrap underline decoration-accent decoration-[3px] underline-offset-4" : "whitespace-nowrap"}>{l}</Link>)}
         </nav>
       </header>
       <main>{children}</main>

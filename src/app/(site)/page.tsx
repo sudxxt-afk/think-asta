@@ -123,6 +123,11 @@ export default async function Home() {
 
       <section className="border-t-2 border-ink">
         <HowWeWork steps={steps.map((st) => ({ id: st.id, title: st.title, text: st.text }))} />
+        <div className="container-x pb-16">
+          <Link href="/configurator" className="group inline-flex items-center gap-3 font-display text-2xl font-extrabold tracking-tight underline decoration-accent decoration-[5px] underline-offset-[10px] sm:text-3xl">
+            Соберите свою систему в конфигураторе <ArrowRight className="transition group-hover:translate-x-1.5" size={28} />
+          </Link>
+        </div>
       </section>
 
       <section className="section border-t-2 border-ink bg-sunken">

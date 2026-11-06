@@ -150,7 +150,7 @@ export async function Legal({ doc }: { doc: Doc }) {
 }
 
 export const legalMetadata = (doc: Doc) => ({
-  title: `${LEGAL[doc].title} | Think-asta`,
+  title: LEGAL[doc].title,
   description: LEGAL[doc].description,
   alternates: { canonical: LEGAL[doc].path },
   openGraph: { url: LEGAL[doc].path },

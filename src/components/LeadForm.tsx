@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { submitLead, type LeadState } from "@/app/actions";
 
-export function LeadForm({ services }: { services: string[] }) {
+export function LeadForm({ services, defaultMessage = "" }: { services: string[]; defaultMessage?: string }) {
   const [state, action, pending] = useActionState<LeadState, FormData>(submitLead, { ok: false });
   if (state.ok)
     return (
@@ -25,7 +25,7 @@ export function LeadForm({ services }: { services: string[] }) {
           {services.map((s) => <option key={s}>{s}</option>)}
         </select>
       </div>
-      <div className="field"><label htmlFor="message">Коротко о задаче</label><textarea id="message" name="message" className="textarea" /></div>
+      <div className="field"><label htmlFor="message">Коротко о задаче</label><textarea id="message" name="message" className="textarea" defaultValue={defaultMessage} /></div>
       <label className="flex items-start gap-3 text-sm font-semibold leading-snug">
         <input type="checkbox" name="consent" required className="mt-0.5 h-5 w-5 shrink-0 accent-[#0b0b0f]" />
         <span>Даю <Link href="/consent" target="_blank" className="underline underline-offset-2">согласие на обработку персональных данных</Link> и принимаю <Link href="/privacy" target="_blank" className="underline underline-offset-2">политику конфиденциальности</Link></span>
