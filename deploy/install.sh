@@ -238,12 +238,40 @@ fi
 for k in DB_PASSWORD SESSION_SECRET ADMIN_PASSWORD DOMAIN; do grep -q "^$k=." .env.prod || die ".env.prod is missing $k"; done
 
 # ---- 6. build and start ----------------------------------------------------
+STEP="images"; step "Pulling base images (retries, then registry mirrors if Docker Hub resets the connection)"
+IMAGES="postgres:16-alpine caddy:2-alpine node:22-bookworm-slim"
+pull_images() { local im; for im in $IMAGES; do retry 4 $SUDO docker pull "$im" || return 1; done; }
+set_mirrors() {
+  have python3 || pkg_install python3 >/dev/null 2>&1 || true
+  have python3 || { warn "python3 is missing, cannot configure mirrors"; return 1; }
+  $SUDO python3 - <<'PY'
+import json, os
+p = "/etc/docker/daemon.json"
+d = json.load(open(p)) if os.path.exists(p) and os.path.getsize(p) else {}
+m = d.get("registry-mirrors", [])
+for x in ("https://mirror.gcr.io", "https://dockerhub.timeweb.cloud"):
+    if x not in m:
+        m.append(x)
+d["registry-mirrors"] = m
+d["max-concurrent-downloads"] = 2
+json.dump(d, open(p, "w"), indent=2)
+PY
+  $SUDO systemctl restart docker
+  retry 5 $SUDO docker info >/dev/null 2>&1
+}
+if ! pull_images; then
+  warn "Docker Hub is unreliable from here: switching Docker to registry mirrors"
+  set_mirrors || die "cannot configure registry mirrors"
+  pull_images || die "images still cannot be pulled; check the server's internet access to Docker Hub / mirrors"
+fi
+ok "base images present"
+
 STEP="compose build"; step "Build and start (the first build takes a few minutes)"
 COMPOSE="$DC -f docker-compose.prod.yml --env-file .env.prod"
 $COMPOSE config -q || die "docker-compose.prod.yml is invalid"
 retry 2 $COMPOSE build
 STEP="compose up"
-$COMPOSE up -d --remove-orphans
+retry 3 $COMPOSE up -d --remove-orphans
 ok "stack started"
 $COMPOSE ps
 
