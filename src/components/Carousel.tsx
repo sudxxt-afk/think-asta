@@ -8,8 +8,8 @@ export function Carousel({ children }: { children: React.ReactNode }) {
   return (
     <div>
       <div className="mb-4 flex justify-end gap-2">
-        <button aria-label="Назад" onClick={() => go(-1)} className="btn btn-ghost btn-sm !w-9 !px-0"><ChevronLeft size={18} /></button>
-        <button aria-label="Вперёд" onClick={() => go(1)} className="btn btn-ghost btn-sm !w-9 !px-0"><ChevronRight size={18} /></button>
+        <button aria-label="Назад" onClick={() => go(-1)} className="btn btn-ghost btn-sm !w-10 !px-0"><ChevronLeft size={18} /></button>
+        <button aria-label="Вперёд" onClick={() => go(1)} className="btn btn-ghost btn-sm !w-10 !px-0"><ChevronRight size={18} /></button>
       </div>
       <div ref={ref} className="carousel" tabIndex={0} aria-label="Проекты">{children}</div>
     </div>

@@ -18,31 +18,49 @@ export default async function Home() {
     db.faq.findMany({ where: { visible: true }, orderBy: { sort: "asc" } }),
   ]);
 
+  const words = ["Сайты", "Приложения", "CRM", "AI", "Bitrix24", "Автоматизации"];
   return (
     <>
-      <section className="section pb-10">
+      <section className="pt-6 sm:pt-10">
         <div className="container-x">
-          <p className="t-eyebrow">Think-asta</p>
-          <h1 className="t-display mt-4 max-w-4xl">{s.hero_title}</h1>
-          <p className="t-lead mt-6 max-w-2xl">{s.hero_text}</p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <Link href="/contacts#form" className="btn btn-primary">Обсудить проект <ArrowRight size={18} /></Link>
-            <Link href="/projects" className="btn btn-ghost">Смотреть проекты</Link>
+          <div className="overflow-hidden rounded-[var(--radius-lg)] border-2 border-ink bg-accent px-5 pb-8 pt-6 sm:px-8 sm:pb-10">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="chip">Think-asta</span>
+              <span className="text-sm font-extrabold">Сайты · приложения · CRM · AI · Bitrix24</span>
+            </div>
+            <h1 className="wordmark mt-6 sm:mt-10">Think-asta</h1>
+            <div className="mt-8 flex flex-wrap items-end justify-between gap-8">
+              <div className="max-w-2xl">
+                <p className="font-display text-xl font-bold leading-snug tracking-tight sm:text-2xl">{s.hero_title}</p>
+                <p className="mt-3 text-[1.05rem] font-semibold leading-relaxed">{s.hero_text}</p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link href="/contacts#form" className="btn btn-dark">Рассказать о задаче <ArrowRight size={18} /></Link>
+                <Link href="/projects" className="btn btn-ghost">Смотреть проекты</Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
+
+      <div className="marquee mt-8 border-y-2 border-ink" aria-hidden>
+        <div>{[...words, ...words, ...words, ...words].map((w, i) => <span key={i}>{w.toUpperCase()} ✦</span>)}</div>
+      </div>
 
       <section id="services" className="section">
         <div className="container-x">
           <h2 className="t-h1 max-w-2xl">Чем мы занимаемся</h2>
           <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {services.map((sv) => (
-              <article key={sv.id} className="card p-6">
-                <span className="grid h-11 w-11 place-items-center rounded-[var(--radius-md)] bg-accent-soft text-accent"><Icon name={sv.icon} className="h-5 w-5" /></span>
-                <h3 className="t-h3 mt-5">{sv.title}</h3>
+            {services.map((sv, i) => (
+              <article key={sv.id} className="card tile p-6">
+                <div className="flex items-center justify-between">
+                  <span className="chip">{String(i + 1).padStart(2, "0")}</span>
+                  <Icon name={sv.icon} className="h-6 w-6" />
+                </div>
+                <h3 className="t-h3 mt-6">{sv.title}</h3>
                 <p className="t-body mt-2 text-[.95rem]">{sv.text}</p>
-                <ul className="mt-4 space-y-1.5 text-sm text-ink-2">
-                  {sv.points.map((p) => <li key={p} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />{p}</li>)}
+                <ul className="mt-4 space-y-1.5 text-sm font-medium text-ink-2">
+                  {sv.points.map((p) => <li key={p} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-accent" />{p}</li>)}
                 </ul>
               </article>
             ))}
@@ -51,11 +69,11 @@ export default async function Home() {
       </section>
 
       {projects.length > 0 && (
-        <section className="section bg-sunken">
+        <section className="section border-y-2 border-ink bg-sunken">
           <div className="container-x">
             <div className="flex items-end justify-between gap-4">
               <h2 className="t-h1">Выполненные проекты</h2>
-              <Link href="/projects" className="hidden text-sm font-semibold text-accent-hover sm:block">Все проекты →</Link>
+              <Link href="/projects" className="hidden text-sm font-extrabold underline decoration-accent decoration-[3px] underline-offset-4 sm:block">Все проекты →</Link>
             </div>
             <div className="mt-8"><Carousel>{projects.map((p) => <ProjectCard key={p.id} p={p} />)}</Carousel></div>
           </div>
@@ -67,24 +85,24 @@ export default async function Home() {
           <h2 className="t-h1 max-w-2xl">Как мы работаем</h2>
           <ol className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-5">
             {steps.map((st, i) => (
-              <li key={st.id} className="card p-5">
-                <span className="text-sm font-semibold text-accent">0{i + 1}</span>
-                <h3 className="t-h3 mt-3">{st.title}</h3>
+              <li key={st.id} className="card tile p-5">
+                <span className="chip">0{i + 1}</span>
+                <h3 className="t-h3 mt-4">{st.title}</h3>
                 <p className="t-body mt-2 text-sm">{st.text}</p>
               </li>
             ))}
           </ol>
-          <p className="t-body mt-8 max-w-2xl">{s.cost_text.split(/\n\s*\n/)[0]} <Link href="/about#cost" className="text-accent-hover underline underline-offset-4">Подробнее</Link></p>
+          <p className="t-body mt-8 max-w-2xl">{s.cost_text.split(/\n\s*\n/)[0]} <Link href="/about#cost" className="font-extrabold text-ink underline decoration-accent decoration-[3px] underline-offset-4">Подробнее</Link></p>
         </div>
       </section>
 
-      <section className="section bg-sunken">
+      <section className="section border-t-2 border-ink bg-sunken">
         <div className="container-x max-w-3xl">
           <h2 className="t-h1">Частые вопросы</h2>
-          <div className="mt-8 divide-y divide-line rounded-[var(--radius-lg)] border border-line bg-surface">
+          <div className="mt-8 space-y-3">
             {faq.map((f) => (
-              <details key={f.id} className="group p-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold">{f.question}<span className="text-accent transition group-open:rotate-45 text-xl">+</span></summary>
+              <details key={f.id} className="group rounded-[20px] border-2 border-ink bg-surface p-5">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-extrabold">{f.question}<span className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] border-2 border-ink bg-accent text-xl leading-none transition group-open:rotate-45">+</span></summary>
                 <p className="t-body mt-3">{f.answer}</p>
               </details>
             ))}
@@ -92,11 +110,11 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section" id="form">
+      <section className="section bg-ink text-white" id="form">
         <div className="container-x grid gap-10 lg:grid-cols-2">
           <div>
             <h2 className="t-h1">Расскажите о задаче</h2>
-            <p className="t-lead mt-4">Ответим в течение рабочего дня и скажем честно, возьмёмся ли и с чего лучше начать.</p>
+            <p className="mt-4 text-lg font-medium leading-relaxed text-white/75">Ответим в течение рабочего дня и скажем честно, возьмёмся ли и с чего лучше начать.</p>
           </div>
           <LeadForm services={services.map((x) => x.title)} />
         </div>

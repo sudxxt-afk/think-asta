@@ -7,9 +7,9 @@ const items = [["/admin", "Обзор"], ["/admin/projects", "Проекты и 
 export default async function Panel({ children }: { children: React.ReactNode }) {
   await requireAdmin();
   return (
-    <div className="min-h-screen bg-sunken md:flex">
+    <div className="admin min-h-screen bg-sunken md:flex">
       <aside className="border-b border-line bg-surface p-4 md:min-h-screen md:w-64 md:border-b-0 md:border-r">
-        <div className="mb-4 text-lg font-semibold">Think<span className="text-accent">-</span>asta <span className="text-xs font-normal text-ink-3">admin</span></div>
+        <div className="font-display mb-4 text-lg font-bold">Think<span className="text-accent">-</span>asta <span className="text-xs font-normal text-ink-3">admin</span></div>
         <nav className="flex gap-1 overflow-x-auto md:flex-col">
           {items.map(([h, l]) => <Link key={h} href={h} className="whitespace-nowrap rounded-[var(--radius-sm)] px-3 py-2 text-sm font-medium text-ink-2 hover:bg-sunken hover:text-ink">{l}</Link>)}
         </nav>
