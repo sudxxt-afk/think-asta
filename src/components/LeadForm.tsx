@@ -27,7 +27,7 @@ export function LeadForm({ services }: { services: string[] }) {
       <div className="field"><label htmlFor="message">Коротко о задаче</label><textarea id="message" name="message" className="textarea" /></div>
       <input name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
       {state.error && <p className="text-sm text-[#c0321c]" role="alert">{state.error}</p>}
-      <button className="btn btn-dark" disabled={pending}>{pending ? "Отправляем…" : "Отправить заявку"}</button>
+      <button className="btn btn-dark" disabled={pending}>{pending ? "Отправляем…" : "Рассказать о задаче"}</button>
     </form>
   );
 }

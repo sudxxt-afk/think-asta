@@ -23,6 +23,13 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const proof = ["Созвон на 30 минут", "План, сроки и цена до старта", "Месяц исправлений бесплатно"];
+const guarantees: [string, string][] = [
+  ["Созвон ни к чему не обязывает", "Полчаса поговорим о задаче. Если мы не подходим, так и скажем и подскажем, куда обратиться."],
+  ["Цена известна до начала работ", "Присылаем план с этапами, сроками и стоимостью каждого. Начать можно с одного этапа и посмотреть на результат."],
+  ["После запуска мы остаёмся", "Первый месяц исправляем найденные ошибки бесплатно, потом помогаем развивать продукт."],
+];
+
 export default async function Home() {
   const [s, services, projects, steps, faq] = await Promise.all([
     getSettings(),
@@ -65,6 +72,9 @@ export default async function Home() {
                   <Link href="/contacts#form" className="btn btn-dark">Рассказать о задаче <ArrowRight size={18} /></Link>
                   <Link href="/projects" className="btn btn-ghost">Смотреть проекты</Link>
                 </div>
+                <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-extrabold">
+                  {proof.map((t) => <li key={t} className="flex items-center gap-2"><span className="h-2 w-2 bg-ink" />{t}</li>)}
+                </ul>
               </div>
               <div className="-mb-8 -mr-5 sm:-mb-10 sm:-mr-8 lg:mr-[-2rem]" aria-hidden><HeroShowcase /></div>
             </div>
@@ -122,7 +132,7 @@ export default async function Home() {
               </li>
             ))}
           </ol>
-          <p className="t-body mt-8 max-w-2xl">{s.cost_text.split(/\n\s*\n/)[0]} <Link href="/about#cost" className="font-extrabold text-ink underline decoration-accent decoration-[3px] underline-offset-4">Подробнее</Link></p>
+          <p className="t-body mt-8 max-w-2xl">{s.cost_text.split(/\n\s*\n/)[0]} <Link href="/about#cost" className="font-extrabold text-ink underline decoration-accent decoration-[3px] underline-offset-4">Как считаем стоимость</Link></p>
         </div>
       </section>
 
@@ -135,6 +145,20 @@ export default async function Home() {
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-extrabold">{f.question}<span className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] border-2 border-ink bg-accent text-xl leading-none transition group-open:rotate-45">+</span></summary>
                 <p className="t-body mt-3">{f.answer}</p>
               </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section border-t-2 border-ink">
+        <div className="container-x">
+          <h2 className="t-h1 max-w-2xl">Чем вы не рискуете</h2>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {guarantees.map(([h, t]) => (
+              <div key={h} className="card tile p-6">
+                <h3 className="t-h3">{h}</h3>
+                <p className="t-body mt-2 text-[.95rem]">{t}</p>
+              </div>
             ))}
           </div>
         </div>
