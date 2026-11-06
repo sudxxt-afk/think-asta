@@ -198,6 +198,12 @@
 
   .ss-cursor__glyph svg {
     display: block;
+  }
+
+  /* One shadow for the cursor as a whole: a filter on each of the dozen
+     stacked glyphs made a render surface per hidden one */
+  .ss-cursor[data-style="real"] .ss-cursor__press,
+  .ss-cursor[data-style="large"] .ss-cursor__press {
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
   }
 

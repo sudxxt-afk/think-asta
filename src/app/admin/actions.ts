@@ -1,5 +1,5 @@
 "use server";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
@@ -9,7 +9,7 @@ import { SETTING_DEFAULTS } from "@/lib/settings";
 
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
 const lines = (fd: FormData, k: string) => str(fd, k).split(/\r?\n|,/).map((x) => x.trim()).filter(Boolean);
-const bump = () => { revalidatePath("/", "layout"); };
+const bump = () => { revalidateTag("site"); revalidatePath("/", "layout"); };
 
 export async function login(_: { error?: string }, fd: FormData) {
   const admin = await db.admin.findUnique({ where: { email: str(fd, "email").toLowerCase() } });

@@ -1,3 +1,5 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { db } from "./db";
 
 export const SETTING_DEFAULTS: Record<string, { label: string; value: string; long?: boolean; hint?: string }> = {
@@ -18,10 +20,13 @@ export const SETTING_DEFAULTS: Record<string, { label: string; value: string; lo
   hours: { label: "Время связи", value: "Пн-Пт, с 10:00 до 19:00 по Москве" },
 };
 
-export async function getSettings() {
+// Cached across requests (admin saves bump the "site" tag) and deduped within one render, so a page view costs no DB round trip
+const loadSettings = unstable_cache(async () => {
   const rows = await db.setting.findMany();
   const map = Object.fromEntries(rows.map((r) => [r.key, r.value]));
   return Object.fromEntries(
     Object.entries(SETTING_DEFAULTS).map(([k, v]) => [k, map[k] ?? v.value]),
   ) as Record<keyof typeof SETTING_DEFAULTS, string>;
-}
+}, ["settings"], { tags: ["site"], revalidate: 60 });
+
+export const getSettings = cache(loadSettings);

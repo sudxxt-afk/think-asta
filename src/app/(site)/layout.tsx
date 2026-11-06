@@ -29,7 +29,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         </nav>
       </header>
       <main>{children}</main>
-      <footer className="border-t-2 border-ink bg-ink text-white">
+      <footer className="cv border-t-2 border-ink bg-ink text-white">
         <div className="container-x grid gap-8 py-12 md:grid-cols-3">
           <div><div className="font-display text-lg font-extrabold">Think<span className="text-accent">-</span>asta</div><p className="mt-2 text-sm text-white/70">Сайты, приложения, CRM, ИИ и Битрикс24.</p></div>
           <div className="text-sm text-white/70"><div>{s.email}</div><div>{s.phone}</div><div>{s.hours}</div></div>

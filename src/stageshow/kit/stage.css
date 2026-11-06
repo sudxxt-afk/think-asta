@@ -446,3 +446,8 @@
 :where(.ss-stage :is(.ss-fly__lift, .ss-expand__face)) > :is(svg, img):not(html):not(body):not(head) {
   max-width: 100%;
 }
+
+/* Out of view nothing animates, so nothing needs its own compositor layer */
+.ss-stage[data-offscreen] * {
+  will-change: auto !important;
+}

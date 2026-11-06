@@ -86,10 +86,19 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
       setActive(Math.min(n - 1, Math.floor(p * n * 0.999)));
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    // Scroll work only while the section is near the viewport; elsewhere it just settles at 0 or 1
+    let live = false;
+    const io = new IntersectionObserver(([e]) => {
+      update();
+      if (e.isIntersecting === live) return;
+      live = e.isIntersecting;
+      el.toggleAttribute("data-live", live);
+      if (live) { window.addEventListener("scroll", onScroll, { passive: true }); window.addEventListener("resize", onScroll); }
+      else { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); }
+    }, { rootMargin: "300px 0px" });
+    io.observe(el);
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(raf); };
+    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(raf); };
   }, [n]);
 
   const goTo = (i: number) => {

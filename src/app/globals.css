@@ -78,10 +78,13 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 .marquee > div { display: inline-block; padding-block: 14px; animation: marquee 28s linear infinite; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
 .marquee span { margin-inline: 1.1em; }
 @keyframes marquee { to { transform: translateX(-50%); } }
-/* Black floods the card from where the pointer entered, over .8s */
+/* Below-the-fold blocks are not styled, laid out or painted until they scroll near */
+.cv { content-visibility: auto; contain-intrinsic-size: auto 720px; }
+
+/* Black floods the card from where the pointer entered, over .8s. A scaled circle runs on the compositor, unlike an animated clip-path */
 .tile { position: relative; isolation: isolate; transition: color .8s ease; }
-.tile::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--color-ink); clip-path: circle(0% at var(--x, 50%) var(--y, 50%)); transition: clip-path .8s cubic-bezier(.4, 0, .2, 1); }
-.tile:hover::before { clip-path: circle(150% at var(--x, 50%) var(--y, 50%)); }
+.tile::before { content: ""; position: absolute; z-index: -1; pointer-events: none; width: 1800px; height: 1800px; left: calc(var(--x, 50%) - 900px); top: calc(var(--y, 50%) - 900px); border-radius: 50%; background: var(--color-ink); transform: scale(0); transition: transform .8s cubic-bezier(.4, 0, .2, 1); }
+.tile:hover::before { transform: scale(1); }
 .tile:hover { color: #fff; }
 .tile .t-body, .tile li { transition: color .8s ease; }
 .tile:hover .t-body, .tile:hover li { color: #d8d8e0; }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { db } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
+import { getHome } from "@/lib/home";
 import { Icon } from "@/components/Icon";
 import { Carousel } from "@/components/Carousel";
 import { ProjectCard } from "@/components/ProjectCard";
@@ -26,13 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const proof = ["Созвон на 30 минут", "План, сроки и цена до старта", "Месяц исправлений бесплатно"];
 export default async function Home() {
-  const [s, services, projects, steps, faq] = await Promise.all([
-    getSettings(),
-    db.service.findMany({ where: { visible: true }, orderBy: { sort: "asc" } }),
-    db.project.findMany({ where: { published: true, inCarousel: true }, orderBy: { sort: "asc" } }),
-    db.step.findMany({ orderBy: { sort: "asc" } }),
-    db.faq.findMany({ where: { visible: true }, orderBy: { sort: "asc" } }),
-  ]);
+  const [s, { services, projects, steps, faq }] = await Promise.all([getSettings(), getHome()]);
 
   const words = ["Сайты", "Приложения", "CRM", "AI", "Bitrix24", "Автоматизации"];
   const ld = [
@@ -104,7 +99,7 @@ export default async function Home() {
       </section>
 
       {projects.length > 0 && (
-        <section className="section border-y-2 border-ink bg-sunken">
+        <section className="cv section border-y-2 border-ink bg-sunken">
           <div className="container-x">
             <div className="flex items-end justify-between gap-4">
               <h2 className="t-h1">Выполненные проекты</h2>
@@ -124,7 +119,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section border-t-2 border-ink">
+      <section className="cv section border-t-2 border-ink">
         <div className="container-x max-w-3xl">
           <h2 className="t-h1">Частые вопросы</h2>
           <div className="mt-8 border-t border-line">
@@ -138,7 +133,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section bg-ink text-white" id="form">
+      <section className="cv section bg-ink text-white" id="form">
         <div className="container-x grid gap-10 lg:grid-cols-2">
           <div>
             <h2 className="t-h1">Расскажите о задаче</h2>

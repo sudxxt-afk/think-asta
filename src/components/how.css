@@ -2,7 +2,8 @@
 .how-sticky { position: sticky; top: 4rem; height: calc(100vh - 4rem); display: flex; align-items: center; }
 .how-stage { container-type: inline-size; position: relative; aspect-ratio: 100 / 62; overflow: hidden; background: var(--color-accent); border: 2px solid var(--color-ink); border-radius: 28px; }
 .pc { --t: clamp(0, calc((var(--p) - var(--s)) / var(--l)), 1); --e: calc(1 - (1 - var(--t)) * (1 - var(--t))); position: absolute; opacity: clamp(0, calc(var(--t) * 4), 1);
-  transform: translate(calc((1 - var(--e)) * var(--dx) * 1cqw), calc((1 - var(--e)) * var(--dy) * 1cqw)) rotate(calc((1 - var(--e)) * var(--r) * 1deg)); will-change: transform, opacity; }
+  transform: translate(calc((1 - var(--e)) * var(--dx) * 1cqw), calc((1 - var(--e)) * var(--dy) * 1cqw)) rotate(calc((1 - var(--e)) * var(--r) * 1deg)); }
+.how[data-live] .pc { will-change: transform, opacity; }
 .pc-grow { transform: scaleX(var(--e)); transform-origin: left center; }
 .pc-card { background: #fff; border: .3cqw solid var(--color-ink); border-radius: 1.4cqw; box-shadow: .5cqw .5cqw 0 var(--color-ink); }
 .how-bubble { padding: 1.1cqw 1.4cqw; font-size: 1.45cqw; font-weight: 700; line-height: 1.25; }
