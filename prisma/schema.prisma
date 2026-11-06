@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String @id @default(cuid())
+  email        String @unique
+  passwordHash String
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  client      String
+  category    String
+  summary     String
+  task        String   @default("")
+  solution    String   @default("")
+  result      String   @default("")
+  cover       String   @default("")
+  tags        String[]
+  published   Boolean  @default(true)
+  inCarousel  Boolean  @default(false)
+  sort        Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+model Service {
+  id      String  @id @default(cuid())
+  key     String  @unique
+  title   String
+  text    String
+  points  String[]
+  icon    String  @default("globe")
+  sort    Int     @default(0)
+  visible Boolean @default(true)
+}
+
+model Faq {
+  id       String  @id @default(cuid())
+  question String
+  answer   String
+  sort     Int     @default(0)
+  visible  Boolean @default(true)
+}
+
+model Step {
+  id    String @id @default(cuid())
+  title String
+  text  String
+  sort  Int    @default(0)
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String
+  body        String
+  cover       String   @default("")
+  seoTitle    String   @default("")
+  seoDesc     String   @default("")
+  published   Boolean  @default(false)
+  publishedAt DateTime @default(now())
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  contact   String
+  message   String   @default("")
+  service   String   @default("")
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  key   String @id
+  value String
+}
