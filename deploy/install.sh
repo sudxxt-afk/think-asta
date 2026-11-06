@@ -275,6 +275,33 @@ retry 3 $COMPOSE up -d --remove-orphans
 ok "stack started"
 $COMPOSE ps
 
+STEP="container network"; step "Internet access from containers (needed for the HTTPS certificate)"
+net_ok() { $COMPOSE exec -T caddy sh -c 'nc -z -w 6 acme-v02.api.letsencrypt.org 443' >/dev/null 2>&1; }
+net_diag() {
+  echo "--- diagnostics ---"
+  echo "host ip_forward: $(cat /proc/sys/net/ipv4/ip_forward)"
+  echo "host resolv.conf:"; grep -v '^#' /etc/resolv.conf | head -n 5 || true
+  echo "caddy container routes:"; $COMPOSE exec -T caddy ip route 2>&1 | head -n 8 || true
+  echo "caddy container resolv.conf:"; $COMPOSE exec -T caddy cat /etc/resolv.conf 2>&1 | head -n 5 || true
+  echo "docker networks:"; $SUDO docker network ls 2>&1 | head -n 8 || true
+  echo "FORWARD chain:"; { $SUDO iptables -S FORWARD 2>/dev/null || $SUDO nft list chain ip filter FORWARD 2>/dev/null; } | head -n 12 || true
+  echo "-------------------"
+}
+if ! net_ok; then
+  warn "containers cannot reach the internet: applying the usual fixes"
+  echo 'net.ipv4.ip_forward=1' | $SUDO tee /etc/sysctl.d/99-think-asta.conf >/dev/null
+  $SUDO sysctl -p /etc/sysctl.d/99-think-asta.conf >/dev/null || $SUDO sysctl -w net.ipv4.ip_forward=1 >/dev/null
+  $COMPOSE down --remove-orphans
+  $SUDO docker network prune -f >/dev/null 2>&1 || true
+  $SUDO systemctl restart docker
+  retry 5 $SUDO docker info >/dev/null 2>&1
+  retry 3 $COMPOSE up -d --remove-orphans
+  sleep 8
+  if net_ok; then ok "containers reach the internet now"; else net_diag; die "containers still have no internet access (see diagnostics above); send them to whoever maintains the server"; fi
+else
+  ok "containers have internet access"
+fi
+
 STEP="health"; step "Waiting for the app"
 for i in $(seq 1 60); do
   st="$($COMPOSE ps --format '{{.Service}} {{.Health}} {{.State}}' app 2>/dev/null | head -n1)"
