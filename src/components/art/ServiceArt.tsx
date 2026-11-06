@@ -1,23 +1,39 @@
 'use client'
-import { Bar, Button, Chip, Phone, Row, Stage, Text, Window } from '@/stageshow/kit'
+import { Bar, Button, Chip, Phone, Row, Stage, Text, Window, type Act } from '@/stageshow/kit'
 import './art.css'
 
 const ACCENT = '#ff5a4e'
 const W = 400
 const H = 300
 
-function Frame({ children }: { children: () => React.ReactNode }) {
+type FrameProps<S> = { initial: S; poster: S; script: (a: Act<S>) => Promise<void>; cursor?: boolean; children: (s: S) => React.ReactNode }
+
+function Frame<S extends object>({ initial, poster, script, cursor, children }: FrameProps<S>) {
   return (
     <div className="art">
-      <Stage width={W} height={H} accent={ACCENT}>{children}</Stage>
+      <Stage width={W} height={H} accent={ACCENT} initial={initial} poster={poster} script={script} cursor={cursor ? { at: { x: 330, y: 270 }, ripple: true } : undefined}>
+        {children}
+      </Stage>
     </div>
   )
 }
 
+// Site: the visitor asks for an estimate, the button confirms on itself.
 function Site() {
+  type S = { sent: boolean }
+  const script = async (a: Act<S>) => {
+    await a.wait(1200)
+    await a.move('go')
+    await a.wait(300)
+    await a.click()
+    await a.set({ sent: true })
+    await a.wait(2800)
+    await a.set({ sent: false })
+    await a.wait(600)
+  }
   return (
-    <Frame>
-      {() => (
+    <Frame<S> initial={{ sent: false }} poster={{ sent: true }} script={script} cursor>
+      {(s) => (
         <Window url="remont-pro.ru" className="art-win">
           <div className="art-pad">
             <div className="art-nav">
@@ -30,9 +46,9 @@ function Site() {
                 <Text className="art-h" wrap>Ремонт квартир под ключ</Text>
                 <Bar w={150} h={6} tone={2} />
                 <Bar w={120} h={6} tone={2} />
-                <div style={{ marginTop: 6 }}><Button variant="primary">Рассчитать смету</Button></div>
+                <div style={{ marginTop: 6 }} data-target="go"><Button variant="primary">{s.sent ? 'Смета придёт на почту' : 'Рассчитать смету'}</Button></div>
               </div>
-              <div className="art-img" />
+              <div className="art-img" data-pulse={s.sent || undefined} />
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
               {[0, 1, 2].map((i) => <Bar key={i} w={110} h={46} r={8} tone={1} />)}
@@ -44,17 +60,31 @@ function Site() {
   )
 }
 
+// App: repeat the order, a new row slides in at the top.
 function App() {
+  type S = { again: boolean }
+  const script = async (a: Act<S>) => {
+    await a.wait(1200)
+    await a.move('again')
+    await a.wait(300)
+    await a.click()
+    await a.set({ again: true })
+    await a.wait(2800)
+    await a.set({ again: false })
+    await a.wait(600)
+  }
   return (
-    <Frame>
-      {() => (
+    <Frame<S> initial={{ again: false }} poster={{ again: true }} script={script} cursor>
+      {(s) => (
         <Phone width={230} className="art-phone">
           <div className="art-list">
             <Text style={{ fontWeight: 800, fontSize: 20, margin: '8px 0 4px' }}>Мои заказы</Text>
+            <div className="art-new" data-show={s.again || undefined}>
+              <Row pad={0} selected lead={<Bar w={30} h={30} r={8} tone={4} />} title={<Text>Заказ №2042</Text>} subtitle={<Text>Принят, готовим</Text>} />
+            </div>
             <Row pad={0} lead={<Bar w={30} h={30} r={8} tone={3} />} title={<Text>Заказ №2041</Text>} subtitle={<Text>В пути, 25 минут</Text>} />
-            <Row pad={0} selected lead={<Bar w={30} h={30} r={8} tone={4} />} title={<Text>Заказ №2038</Text>} subtitle={<Text>Доставлен</Text>} />
-            <Row pad={0} lead={<Bar w={30} h={30} r={8} tone={2} />} title={<Bar w={90} tone={3} />} subtitle={<Bar w={60} tone={2} />} />
-            <Button variant="primary" size="large" style={{ marginTop: 6 }}>Повторить заказ</Button>
+            <Row pad={0} lead={<Bar w={30} h={30} r={8} tone={2} />} title={<Text>Заказ №2038</Text>} subtitle={<Text>Доставлен</Text>} />
+            <div data-target="again"><Button variant="primary" size="large" style={{ marginTop: 6 }}>Повторить заказ</Button></div>
           </div>
         </Phone>
       )}
@@ -62,27 +92,44 @@ function App() {
   )
 }
 
-function Col({ title, n, deals, hot }: { title: string; n: number; deals: [string, string][]; hot?: boolean }) {
-  return (
-    <div className="art-col">
-      <div className="art-colhead"><span>{title}</span><span>{n}</span></div>
-      {deals.map(([a, b], i) => (
-        <div key={i} className="art-deal" data-hot={hot && i === 0 ? '' : undefined}><b>{a}</b><span>{b}</span></div>
-      ))}
-      <Bar w={70} h={40} r={8} tone={1} />
-    </div>
-  )
+function Deal({ a, b, hot, hide }: { a: string; b: string; hot?: boolean; hide?: boolean }) {
+  return <div className="art-deal" data-hot={hot || undefined} data-gone={hide || undefined}><b>{a}</b><span>{b}</span></div>
 }
 
+// CRM: a deal is paid and moves to the last column; counters follow.
 function Crm() {
+  type S = { paid: boolean }
+  const script = async (a: Act<S>) => {
+    await a.wait(1200)
+    await a.move('deal')
+    await a.wait(300)
+    await a.click()
+    await a.set({ paid: true })
+    await a.wait(2800)
+    await a.set({ paid: false })
+    await a.wait(600)
+  }
   return (
-    <Frame>
-      {() => (
+    <Frame<S> initial={{ paid: false }} poster={{ paid: true }} script={script} cursor>
+      {(s) => (
         <Window title="Сделки" className="art-win">
           <div className="art-cols">
-            <Col title="Новые" n={4} deals={[['ООО «Альфа»', '120 000 ₽'], ['ИП Орлов', '45 000 ₽']]} />
-            <Col title="В работе" n={3} hot deals={[['Студия «Лён»', '86 000 ₽'], ['Кафе «Миндаль»', '60 000 ₽']]} />
-            <Col title="Оплачено" n={6} deals={[['ООО «Вектор»', '210 000 ₽']]} />
+            <div className="art-col">
+              <div className="art-colhead"><span>Новые</span><span>4</span></div>
+              <Deal a="ООО «Альфа»" b="120 000 ₽" />
+              <Deal a="ИП Орлов" b="45 000 ₽" />
+              <Bar w={70} h={40} r={8} tone={1} />
+            </div>
+            <div className="art-col">
+              <div className="art-colhead"><span>В работе</span><span>{s.paid ? 2 : 3}</span></div>
+              <div data-target="deal"><Deal a="Студия «Лён»" b="86 000 ₽" hot={!s.paid} hide={s.paid} /></div>
+              <Deal a="Кафе «Миндаль»" b="60 000 ₽" />
+            </div>
+            <div className="art-col">
+              <div className="art-colhead"><span>Оплачено</span><span>{s.paid ? 7 : 6}</span></div>
+              <Deal a="Студия «Лён»" b="86 000 ₽" hot hide={!s.paid} />
+              <Deal a="ООО «Вектор»" b="210 000 ₽" />
+            </div>
           </div>
         </Window>
       )}
@@ -90,20 +137,31 @@ function Crm() {
   )
 }
 
+// AI: the request is read, the fields fill in one by one, then it goes to a manager.
 function Ai() {
+  type S = { n: number; sent: boolean }
+  const script = async (a: Act<S>) => {
+    await a.wait(1000)
+    for (const n of [1, 2, 3, 4]) { await a.set({ n }); await a.wait(650) }
+    await a.wait(500)
+    await a.set({ sent: true })
+    await a.wait(2400)
+    await a.set({ n: 0, sent: false })
+    await a.wait(600)
+  }
   return (
-    <Frame>
-      {() => (
+    <Frame<S> initial={{ n: 0, sent: false }} poster={{ n: 4, sent: false }} script={script}>
+      {(s) => (
         <Window title="Новая заявка" className="art-win">
           <div className="art-pad">
             <div className="art-quote">«Здравствуйте, нужен сайт для кофейни, бюджет около 150 тысяч, хотим до середины июня»</div>
-            <div className="art-nav"><Chip>Разобрано ИИ</Chip><Bar w={60} h={6} tone={2} /></div>
+            <div className="art-nav"><span className="art-fade" data-on={s.n >= 1 || undefined}><Chip>Разобрано ИИ</Chip></span><Bar w={60} h={6} tone={2} /></div>
             <div className="art-fields">
-              <div className="art-field"><span>Задача</span><b>Сайт для кофейни</b></div>
-              <div className="art-field"><span>Бюджет</span><b>150 000 ₽</b></div>
-              <div className="art-field"><span>Срок</span><b>до 15 июня</b></div>
+              <div className="art-field art-fade" data-on={s.n >= 2 || undefined}><span>Задача</span><b>Сайт для кофейни</b></div>
+              <div className="art-field art-fade" data-on={s.n >= 3 || undefined}><span>Бюджет</span><b>150 000 ₽</b></div>
+              <div className="art-field art-fade" data-on={s.n >= 4 || undefined}><span>Срок</span><b>до 15 июня</b></div>
             </div>
-            <div><Button variant="primary">Передать менеджеру</Button></div>
+            <div><Button variant="primary">{s.sent ? 'Передано менеджеру' : 'Передать менеджеру'}</Button></div>
           </div>
         </Window>
       )}
@@ -111,18 +169,27 @@ function Ai() {
   )
 }
 
+// Bitrix24: the funnel bars grow stage by stage.
 function Bitrix() {
+  type S = { n: number }
   const rows: [string, number, string][] = [['Заявка', 100, '48'], ['Звонок', 72, '35'], ['КП', 46, '22'], ['Оплата', 24, '11']]
+  const script = async (a: Act<S>) => {
+    await a.wait(900)
+    for (const n of [1, 2, 3, 4]) { await a.set({ n }); await a.wait(550) }
+    await a.wait(2600)
+    await a.set({ n: 0 })
+    await a.wait(700)
+  }
   return (
-    <Frame>
-      {() => (
+    <Frame<S> initial={{ n: 0 }} poster={{ n: 4 }} script={script}>
+      {(s) => (
         <Window title="Воронка продаж" className="art-win">
           <div className="art-pad" style={{ gap: 14 }}>
             <div className="art-nav"><Text style={{ fontWeight: 800, fontSize: 16 }}>Июнь</Text><Chip>Битрикс24</Chip></div>
             <div className="art-funnel">
               {rows.map(([name, w, n], i) => (
-                <div key={name} className="art-step" data-dim={i === 3 ? undefined : undefined}>
-                  <em>{name}</em><i style={{ width: `${w * 2.1}px` }} /><span>{n}</span>
+                <div key={name} className="art-step">
+                  <em>{name}</em><i style={{ width: s.n > i ? `${w * 2.1}px` : 0 }} /><span className="art-fade" data-on={s.n > i || undefined}>{n}</span>
                 </div>
               ))}
             </div>
@@ -134,17 +201,28 @@ function Bitrix() {
   )
 }
 
+// Automation: the trigger fires, the deal appears, the task is set.
 function Auto() {
+  type S = { step: number }
+  const script = async (a: Act<S>) => {
+    await a.wait(900)
+    for (const step of [1, 2, 3]) { await a.set({ step }); await a.wait(900) }
+    await a.wait(1800)
+    await a.set({ step: 0 })
+    await a.wait(700)
+  }
+  const nodes: [string, string][] = [['Заявка с сайта', 'Форма на лендинге'], ['Сделка в Битрикс24', 'Создаётся сама'], ['Задача менеджеру', 'Позвонить в течение часа']]
   return (
-    <Frame>
-      {() => (
+    <Frame<S> initial={{ step: 0 }} poster={{ step: 3 }} script={script}>
+      {(s) => (
         <Window title="Робот" className="art-win">
           <div className="art-flow">
-            <div className="art-node"><Bar w={26} h={26} r={7} tone={3} /><div>Заявка с сайта<small>Форма на лендинге</small></div></div>
-            <div className="art-link" />
-            <div className="art-node" data-on><Bar w={26} h={26} r={7} tone={4} /><div>Сделка в Битрикс24<small>Создаётся сама</small></div></div>
-            <div className="art-link" />
-            <div className="art-node"><Bar w={26} h={26} r={7} tone={3} /><div>Задача менеджеру<small>Позвонить в течение часа</small></div></div>
+            {nodes.map(([a, b], i) => (
+              <div key={a} style={{ display: 'contents' }}>
+                {i > 0 && <div className="art-link" data-on={s.step >= i + 1 || undefined} />}
+                <div className="art-node" data-on={s.step >= i + 1 || undefined}><Bar w={26} h={26} r={7} tone={s.step >= i + 1 ? 4 : 3} /><div>{a}<small>{b}</small></div></div>
+              </div>
+            ))}
           </div>
         </Window>
       )}
