@@ -77,6 +77,30 @@ model Lead {
   message   String   @default("")
   service   String   @default("")
   status    String   @default("new")
+  source    String   @default("")
+  medium    String   @default("")
+  campaign  String   @default("")
+  referrer  String   @default("")
+  landing   String   @default("")
+  consentAt  DateTime?
+  consentDoc String   @default("")
+  createdAt DateTime @default(now())
+}
+
+model Visit {
+  id        String   @id @default(cuid())
+  path      String
+  source    String   @default("")
+  device    String   @default("")
+  newVisitor Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model ConsentEvent {
+  id        String   @id @default(cuid())
+  choice    String
   createdAt DateTime @default(now())
 }
 

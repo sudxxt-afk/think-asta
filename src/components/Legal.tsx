@@ -1,6 +1,8 @@
 import { getSettings } from "@/lib/settings";
+import { db } from "@/lib/db";
+import { DocBody } from "@/lib/doc";
 
-type Doc = "privacy" | "consent" | "terms" | "cookies";
+export type Doc = "privacy" | "consent" | "terms" | "cookies";
 type S = Awaited<ReturnType<typeof getSettings>>;
 
 export const LEGAL: Record<Doc, { title: string; description: string; path: string }> = {
@@ -134,16 +136,19 @@ function Cookies({ s }: { s: S }) {
   );
 }
 
+export const BODIES = { privacy: Privacy, consent: Consent, terms: Terms, cookies: Cookies };
+
 export async function Legal({ doc }: { doc: Doc }) {
   const s = await getSettings();
   const meta = LEGAL[doc];
-  const Body = { privacy: Privacy, consent: Consent, terms: Terms, cookies: Cookies }[doc];
+  const Body = BODIES[doc];
+  const custom = (await db.setting.findUnique({ where: { key: `doc_${doc}` } }))?.value.trim();
   return (
     <section className="section">
       <div className="container-x max-w-3xl">
         <h1 className="t-h1">{meta.title}</h1>
         <p className="mt-3 text-sm font-semibold text-ink-2">Редакция от {s.legal_date}</p>
-        <Body s={s} />
+        {custom ? <DocBody text={custom} s={s} /> : <Body s={s} />}
       </div>
     </section>
   );

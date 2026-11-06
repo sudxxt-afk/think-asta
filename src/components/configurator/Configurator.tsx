@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Check, Link2, RotateCcw } from "lucide-react";
-import { CORES, GROUPS, MODULES, PRESETS, flow, tips, type Core } from "./model";
+import { CORES, GROUPS, MODULES, PRESETS, applyConfig, flow, tips, type ConfigOverride, type Core } from "./model";
 import { Diagram } from "./Diagram";
 import "./configurator.css";
 
-export function Configurator({ initialCore, initialMods }: { initialCore: Core; initialMods: string[] }) {
+export function Configurator({ initialCore, initialMods, config }: { initialCore: Core; initialMods: string[]; config?: ConfigOverride | null }) {
+  applyConfig(config);
   const [core, setCore] = useState<Core>(initialCore);
   const [mods, setMods] = useState<string[]>(initialMods);
   const [copied, setCopied] = useState(false);

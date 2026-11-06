@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
 import { logout } from "../actions";
 
-const items = [["/admin", "Обзор"], ["/admin/projects", "Проекты и карусель"], ["/admin/content", "Услуги, процесс, FAQ"], ["/admin/posts", "Блог"], ["/admin/leads", "Заявки"], ["/admin/settings", "Тексты и контакты"]];
+const items = [["/admin", "Обзор"], ["/admin/projects", "Проекты и карусель"], ["/admin/content", "Услуги, процесс, FAQ"], ["/admin/posts", "Блог"], ["/admin/leads", "Заявки"], ["/admin/stats", "Статистика"], ["/admin/pages", "Юр. страницы"], ["/admin/configurator", "Конфигуратор"], ["/admin/settings", "Тексты и контакты"]];
 
 export default async function Panel({ children }: { children: React.ReactNode }) {
   await requireAdmin();
@@ -18,7 +18,7 @@ export default async function Panel({ children }: { children: React.ReactNode })
           <form action={logout}><button className="btn btn-ghost btn-sm">Выйти</button></form>
         </div>
       </aside>
-      <main className="flex-1 p-5 md:p-10"><div className="mx-auto max-w-4xl">{children}</div></main>
+      <main className="flex-1 p-5 md:p-10"><div className="mx-auto max-w-6xl">{children}</div></main>
     </div>
   );
 }

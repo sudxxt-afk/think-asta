@@ -69,3 +69,22 @@ export function tips(core: Core, on: Set<string>): { text: string; add: string; 
 function joinRu(a: string[]) {
   return a.length < 2 ? a.join("") : `${a.slice(0, -1).join(", ")} и ${a[a.length - 1]}`;
 }
+
+// Правки из админки: скрытые модули, свои подписи и свои готовые схемы. Применяются на месте, потому что flow/tips читают MODULES напрямую.
+export type ConfigOverride = {
+  hidden?: string[];
+  mods?: Record<string, { label?: string; sub?: string }>;
+  presets?: { name: string; core: Core; mods: string[] }[];
+};
+const BASE_MODULES = MODULES.map((m) => ({ ...m }));
+const BASE_PRESETS = PRESETS.map((p) => ({ ...p, mods: [...p.mods] }));
+
+export function applyConfig(c?: ConfigOverride | null) {
+  const hidden = new Set(c?.hidden ?? []);
+  MODULES.length = 0;
+  MODULES.push(...BASE_MODULES.filter((m) => !hidden.has(m.id)).map((m) => ({ ...m, ...(c?.mods?.[m.id]?.label ? { label: c.mods[m.id].label! } : {}), ...(c?.mods?.[m.id]?.sub ? { sub: c.mods[m.id].sub! } : {}) })));
+  const ids = new Set(MODULES.map((m) => m.id));
+  const presets = (c?.presets?.length ? c.presets : BASE_PRESETS).map((p) => ({ ...p, mods: p.mods.filter((x) => ids.has(x)) }));
+  PRESETS.length = 0;
+  PRESETS.push(...presets);
+}

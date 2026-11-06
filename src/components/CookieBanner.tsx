@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { logConsent } from "@/app/track";
 
 const KEY = "ta_cookies";
 
@@ -13,6 +14,8 @@ export function CookieBanner() {
   const choose = (v: "all" | "necessary") => {
     document.cookie = `${KEY}=${v}; Path=/; Max-Age=${60 * 60 * 24 * 365}; SameSite=Lax`;
     setShow(false);
+    window.dispatchEvent(new Event("ta-consent"));
+    logConsent(v).catch(() => {});
     router.refresh();
   };
   return (

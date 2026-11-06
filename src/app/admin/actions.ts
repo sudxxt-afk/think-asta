@@ -119,3 +119,30 @@ export async function saveSettings(fd: FormData) {
     db.setting.upsert({ where: { key }, update: { value: str(fd, key) }, create: { key, value: str(fd, key) } })));
   bump();
 }
+
+/* Legal texts & configurator */
+const DOCS = ["privacy", "consent", "terms", "cookies"];
+export async function saveDoc(fd: FormData) {
+  await requireAdmin();
+  const doc = str(fd, "doc");
+  if (!DOCS.includes(doc)) return;
+  const value = String(fd.get("text") ?? "").trim();
+  if (!value) await db.setting.deleteMany({ where: { key: `doc_${doc}` } });
+  else await db.setting.upsert({ where: { key: `doc_${doc}` }, update: { value }, create: { key: `doc_${doc}`, value } });
+  bump();
+  redirect(`/admin/pages?doc=${doc}&saved=1`);
+}
+export async function saveConfigurator(fd: FormData) {
+  await requireAdmin();
+  const json = String(fd.get("config") ?? "");
+  try { JSON.parse(json); } catch { return; }
+  await db.setting.upsert({ where: { key: "configurator" }, update: { value: json }, create: { key: "configurator", value: json } });
+  bump();
+  redirect("/admin/configurator?saved=1");
+}
+export async function resetConfigurator() {
+  await requireAdmin();
+  await db.setting.deleteMany({ where: { key: "configurator" } });
+  bump();
+  redirect("/admin/configurator");
+}

@@ -1,6 +1,8 @@
 "use server";
 import { z } from "zod";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { getSettings } from "@/lib/settings";
 import { notifyLead } from "@/lib/leads";
 
 const schema = z.object({
@@ -18,7 +20,10 @@ export async function submitLead(_: LeadState, fd: FormData): Promise<LeadState>
   const parsed = schema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0].message };
   const { website: _h, consent: _c, ...data } = parsed.data;
-  await db.lead.create({ data });
+  const jar = await cookies();
+  const [source = "", medium = "", campaign = "", referrer = "", landing = ""] = decodeURIComponent(jar.get("ta_src")?.value ?? "").split("|");
+  const s = await getSettings();
+  await db.lead.create({ data: { ...data, source, medium, campaign, referrer, landing, consentAt: new Date(), consentDoc: `Согласие, редакция от ${s.legal_date}` } });
   await notifyLead(data);
   return { ok: true };
 }
