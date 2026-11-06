@@ -123,9 +123,6 @@ export default async function Home() {
 
       <section className="border-t-2 border-ink">
         <HowWeWork steps={steps.map((st) => ({ id: st.id, title: st.title, text: st.text }))} />
-        <div className="container-x pb-16">
-          <p className="t-body mt-8 max-w-2xl">{s.cost_text.split(/\n\s*\n/)[0]} <Link href="/about#cost" className="font-extrabold text-ink underline decoration-accent decoration-[3px] underline-offset-4">Как считаем стоимость</Link></p>
-        </div>
       </section>
 
       <section className="section border-t-2 border-ink bg-sunken">
