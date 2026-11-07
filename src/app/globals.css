@@ -91,8 +91,8 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 .tile .t-body, .tile li { transition: color .8s ease; }
 .tile:hover .t-body, .tile:hover li { color: #d8d8e0; }
 @media (hover: none) {
-  .tile::before { inset: 0; width: auto; height: auto; border-radius: inherit; transform: scaleY(0); transform-origin: 50% 0; transition-duration: .55s; }
-  .tile[data-run]::before { transform: scaleY(1); }
+  .tile::before { width: 1400px; height: 1400px; left: calc(50% - 700px); top: -700px; }
+  .tile[data-run]::before { transform: scale(1); }
   .tile[data-run] { color: #fff; }
   .tile[data-run] .t-body, .tile[data-run] li { color: #d8d8e0; }
 }
@@ -222,13 +222,13 @@ header[data-hide] { transform: translateY(-100%); }
 /* Swipe cards on phones settle like a deck: the ones leaving shrink and tilt away */
 @supports (animation-timeline: view()) {
   @media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
-    .swipe .swipe-track > * { animation: deck linear both; animation-timeline: view(inline); }
+    .swipe .swipe-track > * { animation: deck linear both; animation-timeline: view(inline); will-change: transform; }
   }
 }
 @keyframes deck {
-  0% { transform: scale(.94); }
+  0% { transform: scale(.9) rotate(2.5deg); }
   40%, 60% { transform: none; }
-  100% { transform: scale(.94); }
+  100% { transform: scale(.9) rotate(-2.5deg); }
 }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } .marquee > div { animation: none; } }
