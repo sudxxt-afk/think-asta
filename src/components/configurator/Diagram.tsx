@@ -62,7 +62,21 @@ const at = (c: number[][], t: number) => {
 };
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 
-export function Diagram({ core, on }: { core: Core; on: Set<string> }) {
+// One step of a played request: the edges a packet runs along and the nodes it lights
+function stepOf(id: string, es: [Node, Node][], nodes: Node[]) {
+  if (id === "in") return { runs: es.filter(([a]) => a.kind === "in"), hot: es.filter(([a]) => a.kind === "in").map(([a]) => a.id) };
+  if (id === "ai") return { runs: [], hot: ["ai"] };
+  if (id === "core") {
+    const core = nodes.find((n) => n.kind === "core" || n.kind === "chaos");
+    return { runs: es.filter(([a, b]) => a.kind === "ai" && b.id === core?.id), hot: core ? [core.id] : [] };
+  }
+  return { runs: es.filter(([, b]) => b.id === id), hot: [id] };
+}
+
+export const STEP_MS = 1100;
+export type Sim = { steps: string[]; t0: number };
+
+export function Diagram({ core, on, sim, onStep }: { core: Core; on: Set<string>; sim?: Sim | null; onStep?: (i: number) => void }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<Box>({ W: 900, H: 560, v: false });
   const target = useMemo(() => layout(core, on, box), [core, on, box]);
@@ -101,6 +115,11 @@ export function Diagram({ core, on }: { core: Core; on: Set<string> }) {
     tween.current = { from, to, t0: performance.now() };
   }, [target]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const simRef = useRef(sim);
+  simRef.current = sim;
+  const stepRef = useRef({ i: -1, cb: onStep });
+  stepRef.current.cb = onStep;
+
   useEffect(() => {
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0, visible = true;
@@ -111,12 +130,17 @@ export function Diagram({ core, on }: { core: Core; on: Set<string> }) {
       const { from, to, t0 } = tween.current;
       const k = still ? 1 : ease(Math.min(1, (now - t0) / 520));
       const moving = k < 1;
-      if (!visible && !moving) return;
+      const s = simRef.current;
+      // The played step is reported from the same clock the packet runs on, so the list and the scheme never drift apart
+      const i = s ? Math.floor((now - s.t0) / STEP_MS) : -1;
+      const step = s && i < s.steps.length + 1 ? Math.min(i, s.steps.length - 1) : -1;
+      if (step !== stepRef.current.i) { stepRef.current.i = step; stepRef.current.cb?.(step); }
+      if (!visible && !moving && !s) return;
       setNodes(to.map((b, i) => {
         const a = from[i];
         return { ...b, x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, w: a.w + (b.w - a.w) * k, a: a.a + (b.a - a.a) * k };
       }).filter((n, i) => !(k === 1 && to[i].a === 0)));
-      if (!still) setClock(now);
+      if (!still || s) setClock(now);
     };
     raf = requestAnimationFrame(tick);
     return () => { cancelAnimationFrame(raf); io.disconnect(); };
@@ -125,6 +149,20 @@ export function Diagram({ core, on }: { core: Core; on: Set<string> }) {
   const NODE_H = box.v ? 64 : 70;
   const es = edges(nodes.length ? nodes : target);
   const chaos = core === "none";
+
+  // A played request: which step it is at, how far along, what it has already passed
+  const k = sim ? (clock - sim.t0) / STEP_MS : -1;
+  const at_ = sim && k >= 0 && k < sim.steps.length ? Math.floor(k) : -1;
+  const phase = at_ >= 0 ? ease(Math.min(1, (k - at_) / 0.8)) : 0;
+  const cur = at_ >= 0 ? stepOf(sim!.steps[at_], es, nodes) : null;
+  const passed = new Set<string>(), lit = new Set<string>();
+  if (sim && k >= 0) sim.steps.slice(0, Math.min(sim.steps.length, Math.floor(k) + 1)).forEach((id, j) => {
+    const st = stepOf(id, es, nodes);
+    st.hot.forEach((h) => passed.add(h));
+    if (j < at_ || at_ < 0) st.runs.forEach(([a, b]) => lit.add(`${a.id}>${b.id}`));
+  });
+  if (cur && phase >= 1) cur.runs.forEach(([a, b]) => lit.add(`${a.id}>${b.id}`));
+  const playing = !!sim && k >= 0;
 
   return (
     <div ref={wrap} className="cfg-canvas" style={{ height: box.H }}>
@@ -135,8 +173,12 @@ export function Diagram({ core, on }: { core: Core; on: Set<string> }) {
           const alpha = Math.min(a.a, b.a);
           return (
             <g key={`${a.id}>${b.id}`} opacity={alpha}>
-              <path d={d} className={chaos ? "cfg-edge cfg-edge-dash" : "cfg-edge"} />
-              {!chaos && [0, 0.5].map((off) => {
+              <path d={d} className={chaos ? "cfg-edge cfg-edge-dash" : "cfg-edge"} data-lit={lit.has(`${a.id}>${b.id}`) || undefined} />
+              {cur?.runs.some(([x, y]) => x === a && y === b) && phase < 1 && (() => {
+                const [x, y] = at(c, phase);
+                return <circle cx={x} cy={y} r={9} className="cfg-packet" />;
+              })()}
+              {!chaos && !playing && [0, 0.5].map((off) => {
                 const [x, y] = at(c, ((clock / 2200 + off + (a.id.length + b.id.length) * 0.07) % 1));
                 return <circle key={off} cx={x} cy={y} r={4.5} className="cfg-dot" />;
               })}
@@ -155,6 +197,8 @@ export function Diagram({ core, on }: { core: Core; on: Set<string> }) {
             key={n.id}
             className="cfg-node"
             data-kind={n.kind}
+            data-hot={cur?.hot.includes(n.id) && (cur.runs.length === 0 || phase >= 1 || n.kind === "in") ? "" : undefined}
+            data-dim={playing && !passed.has(n.id) ? "" : undefined}
             data-compact={box.v && n.kind !== "core" && n.kind !== "ai" && n.kind !== "chaos" ? "" : undefined}
             style={{ left: n.x - n.w / 2, top: n.y - NODE_H / 2, width: n.w, height: NODE_H, opacity: n.a, transform: `scale(${0.85 + 0.15 * n.a})` }}
           >

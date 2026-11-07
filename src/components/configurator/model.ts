@@ -35,24 +35,55 @@ export const PRESETS: { name: string; core: Core; mods: string[] }[] = [
 ];
 
 export const byId = (id: string) => MODULES.find((m) => m.id === id);
+export const labelOf = (id: string) => (id.startsWith("core:") ? CORES.find((c) => `core:${c.id}` === id)?.label : byId(id)?.label) ?? id;
 
-export function flow(core: Core, on: Set<string>): string[] {
+// Each step names the node it happens at, so the diagram can play the same story the list tells
+export type Step = { id: string; text: string };
+const OUT_STEPS: [string, string][] = [
+  ["robots", "Роботы ставят задачи и напоминают, если клиенту не ответили вовремя."],
+  ["notify", "Менеджер узнаёт о заявке в Telegram через пару секунд."],
+  ["pay", "Клиент платит онлайн, статус сделки меняется сам."],
+  ["onec", "Счета и оплаты синхронизируются с 1С."],
+  ["stock", "Склад резервирует товар под заказ."],
+  ["reports", "Руководитель видит воронку и выручку на одном экране."],
+];
+
+export function flow(core: Core, on: Set<string>): Step[] {
   const ins = MODULES.filter((m) => m.col === "in" && on.has(m.id)).map((m) => m.label.toLowerCase());
-  const out: string[] = [];
-  out.push(ins.length ? `Клиент приходит через ${joinRu(ins)}.` : "Добавьте хотя бы один канал, откуда приходят клиенты.");
-  if (on.has("ai")) out.push("ИИ разбирает обращение: вытаскивает задачу, бюджет и срок, отсеивает спам.");
-  if (core === "crm") out.push("Сделка появляется в CRM сама, без ручного ввода.");
-  else if (core === "bitrix") out.push("Сделка создаётся в Битрикс24 и встаёт в нужную воронку.");
-  else out.push("Заявки оседают в почте и таблицах, часть теряется по дороге.");
-  if (core !== "none") {
-    if (on.has("robots")) out.push("Роботы ставят задачи и напоминают, если клиенту не ответили вовремя.");
-    if (on.has("notify")) out.push("Менеджер узнаёт о заявке в Telegram через пару секунд.");
-    if (on.has("pay")) out.push("Клиент платит онлайн, статус сделки меняется сам.");
-    if (on.has("onec")) out.push("Счета и оплаты синхронизируются с 1С.");
-    if (on.has("stock")) out.push("Склад резервирует товар под заказ.");
-    if (on.has("reports")) out.push("Руководитель видит воронку и выручку на одном экране.");
-  }
+  const out: Step[] = [];
+  out.push({ id: "in", text: ins.length ? `Клиент приходит через ${joinRu(ins)}.` : "Добавьте хотя бы один канал, откуда приходят клиенты." });
+  if (on.has("ai")) out.push({ id: "ai", text: "ИИ разбирает обращение: вытаскивает задачу, бюджет и срок, отсеивает спам." });
+  if (core === "crm") out.push({ id: "core", text: "Сделка появляется в CRM сама, без ручного ввода." });
+  else if (core === "bitrix") out.push({ id: "core", text: "Сделка создаётся в Битрикс24 и встаёт в нужную воронку." });
+  else out.push({ id: "core", text: "Заявки оседают в почте и таблицах, часть теряется по дороге." });
+  if (core !== "none") for (const [id, text] of OUT_STEPS) if (on.has(id) && byId(id)) out.push({ id, text });
   return out;
+}
+
+// What the visitor wants to fix, mapped onto modules. A goal is on when everything it needs is on.
+export type Goal = { id: string; label: string; mods: string[]; core?: boolean };
+export const GOALS: Goal[] = [
+  { id: "lose", label: "Не терять заявки", mods: ["notify", "robots"], core: true },
+  { id: "fast", label: "Отвечать быстрее", mods: ["bot", "notify", "ai"] },
+  { id: "manual", label: "Меньше ручной работы", mods: ["ai", "robots", "onec"], core: true },
+  { id: "pay", label: "Принимать оплату онлайн", mods: ["site", "pay"], core: true },
+  { id: "stock", label: "Связать склад и 1С", mods: ["onec", "stock"], core: true },
+  { id: "numbers", label: "Видеть цифры", mods: ["reports"], core: true },
+];
+export const goalMods = (g: Goal) => g.mods.filter((id) => byId(id));
+export const goalOn = (g: Goal, core: Core, on: Set<string>) => (!g.core || core !== "none") && goalMods(g).every((id) => on.has(id));
+
+// Launch order: what goes live first so the business feels it early, then what builds on it
+export function plan(core: Core, on: Set<string>): { title: string; note: string; ids: string[] }[] {
+  const has = (ids: string[]) => ids.filter((id) => on.has(id) && byId(id));
+  const ins = MODULES.filter((m) => m.col === "in" && on.has(m.id)).map((m) => m.id);
+  const phases = [
+    { title: "Фундамент", note: "заявки со всех каналов попадают в одно место", ids: [...(core === "none" ? [] : [`core:${core}`]), ...ins] },
+    { title: "Скорость", note: "ни одна заявка не ждёт до вечера", ids: has(["notify", "robots"]) },
+    { title: "Автоматизация", note: "рутину берут на себя ИИ и интеграции", ids: has(["ai", "pay", "onec", "stock"]) },
+    { title: "Контроль", note: "решения по цифрам, а не по ощущениям", ids: has(["reports"]) },
+  ];
+  return phases.filter((p) => p.ids.length);
 }
 
 export function tips(core: Core, on: Set<string>): { text: string; add: string; label: string }[] {

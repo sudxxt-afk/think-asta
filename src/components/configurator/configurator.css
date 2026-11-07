@@ -61,7 +61,7 @@
 .cfg-grid > .cfg-panel { grid-area: panel; }
 .cfg-grid > .cfg-plate { grid-area: plate; }
 .cfg-grid > .cfg-result { grid-area: result; }
-@media (min-width: 1024px) { .cfg-grid { grid-template-columns: 320px minmax(0, 1fr); grid-template-areas: "panel plate" "panel result"; align-items: start; } }
+@media (min-width: 1024px) { .cfg-grid { grid-template-columns: 340px minmax(0, 1fr); grid-template-areas: "panel plate" "panel result"; align-items: start; } }
 .cfg-tog { font-size: .84rem; gap: 8px; padding: 8px; }
 .cfg-tog b { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
 @media (max-width: 479px) { .cfg-tog { flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px; } .cfg-tog b { min-height: 2.3em; } }
@@ -69,3 +69,49 @@
 .cfg-dock[data-on] { transform: none; }
 .cfg-dock b { font-family: var(--font-unbounded), sans-serif; color: var(--color-accent); }
 .cfg-dock button { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding-inline: 16px; border-radius: 12px; background: var(--color-accent); color: var(--color-ink); font-weight: 800; }
+
+/* Start: what to fix or a ready scheme */
+.cfg-start { display: grid; gap: 12px; }
+.cfg-seg { display: inline-flex; justify-self: start; padding: 4px; gap: 4px; border: 2px solid var(--color-ink); border-radius: 99px; background: #fff; }
+.cfg-seg button { height: 34px; padding: 0 16px; border-radius: 99px; font-weight: 800; font-size: .85rem; color: var(--color-ink-2); transition: background .2s, color .2s; }
+.cfg-seg button[data-on] { background: var(--color-ink); color: #fff; }
+.cfg-plus { font-weight: 900; color: var(--color-accent-hover, var(--color-accent)); }
+
+/* Play a request through the scheme */
+.cfg-play { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border: 2px solid var(--color-ink); border-radius: 12px; background: var(--color-accent); font-weight: 800; font-size: .88rem; box-shadow: 3px 3px 0 var(--color-ink); transition: transform .15s, box-shadow .15s, background .2s, color .2s; }
+.cfg-play:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--color-ink); }
+.cfg-play:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--color-ink); }
+.cfg-play[data-on] { background: var(--color-ink); color: #fff; }
+.cfg-play:disabled { opacity: .4; pointer-events: none; }
+.cfg-cap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .35s cubic-bezier(.2, .7, .2, 1); background: var(--color-ink); color: #fff; }
+.cfg-cap[data-on] { grid-template-rows: 1fr; }
+.cfg-cap > div { overflow: hidden; }
+.cfg-cap p { display: flex; gap: 12px; align-items: baseline; padding: 12px 18px; font-weight: 700; line-height: 1.4; animation: cfg-in .3s both; }
+.cfg-cap span { flex: none; font-family: var(--font-unbounded), sans-serif; font-size: .8rem; color: var(--color-accent); }
+.cfg-packet { fill: var(--color-accent); stroke: var(--color-ink); stroke-width: 2.5; }
+.cfg-edge { transition: stroke .3s; }
+.cfg-edge[data-lit] { stroke: var(--color-accent); stroke-width: 4; }
+.cfg-node { transition: filter .3s; }
+.cfg-node[data-dim] { filter: grayscale(1) opacity(.45); }
+.cfg-node[data-hot] { animation: cfg-hot .5s cubic-bezier(.2, .7, .2, 1); outline: 3px solid var(--color-accent); outline-offset: 3px; }
+@keyframes cfg-hot { 40% { translate: 0 -4px; } }
+
+/* Result tabs, played steps and the launch plan */
+.cfg-tabs { display: flex; gap: 18px; border-bottom: 2px solid var(--color-line); }
+.cfg-tabs button { margin-bottom: -2px; padding: 0 0 10px; border-bottom: 3px solid transparent; font-family: var(--font-unbounded), sans-serif; font-weight: 800; font-size: 1rem; letter-spacing: -.02em; color: var(--color-ink-3, #8a8a93); transition: color .2s, border-color .2s; }
+.cfg-tabs button[data-on] { color: var(--color-ink); border-color: var(--color-accent); }
+.cfg-flow li { transition: opacity .3s; }
+.cfg-flow[data-playing] li { opacity: .4; }
+.cfg-flow[data-playing] li[data-past], .cfg-flow[data-playing] li[data-on] { opacity: 1; }
+.cfg-flow li[data-on] span { background: var(--color-ink); color: var(--color-accent); }
+.cfg-plan { display: grid; gap: 16px; }
+.cfg-plan li { display: flex; gap: 14px; align-items: flex-start; animation: cfg-in .35s both; }
+.cfg-plan-n { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border: 2px solid var(--color-ink); border-radius: 10px; background: var(--color-accent); font-family: var(--font-unbounded), sans-serif; font-weight: 800; font-size: .9rem; }
+.cfg-plan b { font-weight: 800; }
+.cfg-plan small { font-size: .85rem; font-weight: 600; color: var(--color-ink-2); }
+.cfg-plan-mods { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.cfg-plan-mods span { padding: 3px 10px; border: 2px solid var(--color-ink); border-radius: 99px; font-size: .78rem; font-weight: 800; background: #fff; }
+.cfg-send { animation: cfg-in .35s both; scroll-margin: 90px; }
+@media (max-width: 639px) { .cfg-plate-head { padding: 10px 12px; } .cfg-stats span:last-child { display: none; } .cfg-tabs { gap: 14px; } .cfg-tabs button { font-size: .88rem; } .cfg-seg { justify-self: stretch; } .cfg-seg button { flex: 1; padding: 0 8px; } }
+@media (prefers-reduced-motion: reduce) { .cfg-node[data-hot], .cfg-plan li, .cfg-cap p { animation: none; } }
+@media (min-width: 1024px) { .cfg-dock { display: none; } .cfg-tog { font-size: .8rem; gap: 7px; padding: 8px 7px; } .cfg-box { width: 24px; height: 24px; } }
