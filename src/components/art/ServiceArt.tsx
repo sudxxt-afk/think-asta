@@ -31,7 +31,7 @@ function useRun() {
     }
     // Touch: the card in the middle band plays and takes the same black fill a hover gives on desktop
     const card = el.closest<HTMLElement>('article, a')
-    const io = new IntersectionObserver(([e]) => { setRun(e.isIntersecting); card?.toggleAttribute('data-run', e.isIntersecting) }, { rootMargin: '-38% 0px -38% 0px' })
+    const io = new IntersectionObserver(([e]) => { setRun(e.isIntersecting); card?.toggleAttribute('data-run', e.isIntersecting) }, { rootMargin: '-38% -20% -38% -20%' })
     io.observe(el)
     return () => io.disconnect()
   }, [])

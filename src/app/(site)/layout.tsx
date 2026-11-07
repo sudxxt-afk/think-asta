@@ -5,6 +5,8 @@ import { Analytics } from "@/components/Analytics";
 import { Track } from "@/components/Track";
 import { CookieBanner } from "@/components/CookieBanner";
 import { MobileMenu } from "@/components/MobileMenu";
+import { ActionBar } from "@/components/ActionBar";
+import { ArrowUpRight } from "lucide-react";
 
 const nav = [["/#services", "Услуги"], ["/projects", "Проекты"], ["/configurator", "Конфигуратор"], ["/about", "О нас"], ["/blog", "Блог"], ["/contacts", "Контакты"]];
 
@@ -31,11 +33,17 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </header>
       <main>{children}</main>
       <footer className="cv border-t-2 border-ink bg-ink text-white">
-        <div className="container-x grid gap-8 py-12 md:grid-cols-3">
+        <div className="container-x grid gap-8 pt-12 md:grid-cols-3 md:pb-4">
           <div><div className="font-display text-lg font-extrabold">Think<span className="text-accent">-</span>asta</div><p className="mt-2 text-sm text-white/70">Сайты, приложения, CRM, ИИ и Битрикс24.</p></div>
-          <div className="text-sm text-white/70"><div>{s.email}</div><div>{s.phone}</div><div>{s.hours}</div></div>
-          <div className="text-sm text-white/70"><a href={s.telegram} className="text-accent">Telegram</a><div className="mt-1">{s.address}</div></div>
+          <div className="foot-rows text-sm text-white/70">
+            <a href={`mailto:${s.email}`}>{s.email}<ArrowUpRight size={18} /></a>
+            <a href={`tel:${s.phone.replace(/[^\d+]/g, "")}`}>{s.phone}<ArrowUpRight size={18} /></a>
+            {s.telegram && <a href={s.telegram} className="text-accent md:hidden!">Telegram<ArrowUpRight size={18} /></a>}
+            <div>{s.hours}</div>
+          </div>
+          <div className="text-sm text-white/70"><a href={s.telegram} className="text-accent max-md:hidden">Telegram</a><div className="md:mt-1">{s.address}</div></div>
         </div>
+        <div className="foot-mark" aria-hidden>Think<span>-</span>asta</div>
         <div className="border-t border-white/15">
           <div className="container-x flex flex-col gap-3 py-6 text-xs text-white/60 md:flex-row md:items-center md:justify-between">
             <p>© {new Date().getFullYear()} Think-asta. {[s.legal_name, s.legal_reg, s.legal_address].filter(Boolean).join(", ")}</p>
@@ -45,6 +53,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           </div>
         </div>
       </footer>
+      <ActionBar phone={s.phone} telegram={s.telegram} />
       <CookieBanner />
     </>
   );

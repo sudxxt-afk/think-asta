@@ -5,6 +5,7 @@ import { getSettings } from "@/lib/settings";
 import { getHome } from "@/lib/home";
 import { Icon } from "@/components/Icon";
 import { Carousel } from "@/components/Carousel";
+import { Swipe } from "@/components/Swipe";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ServiceArt } from "@/components/art/ServiceArt";
 import { HowWeWork } from "@/components/HowWeWork";
@@ -46,9 +47,9 @@ export default async function Home() {
   return (
     <>
       {ld.map((d, i) => <JsonLd key={i} data={d} />)}
-      <section className="pt-6 sm:pt-10">
-        <div className="container-x">
-          <div data-plate className="relative overflow-hidden rounded-[var(--radius-lg)] border-2 border-ink bg-accent px-5 pb-8 pt-6 sm:px-8 sm:pb-10">
+      <section className="hero sm:pt-10">
+        <div className="container-x max-sm:px-0">
+          <div data-plate className="hero-plate relative overflow-hidden rounded-[var(--radius-lg)] border-2 border-ink bg-accent px-5 pb-8 pt-6 sm:px-8 sm:pb-10">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <span className="chip max-sm:hidden!">Think-asta</span>
               <span className="text-[13px] font-extrabold sm:text-sm">Сайты · приложения · CRM · AI · Bitrix24</span>
@@ -59,10 +60,11 @@ export default async function Home() {
                 <p className="font-display text-xl font-bold leading-snug tracking-tight sm:text-2xl">{s.hero_title}</p>
                 <p className="mt-3 text-[.98rem] font-semibold leading-relaxed sm:text-[1.05rem]">{s.hero_text}</p>
                 <div className="mt-6 grid gap-2.5 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
-                  <Link href="/contacts#form" className="btn btn-dark">Рассказать о задаче <ArrowRight size={18} /></Link>
-                  <Link href="/projects" className="btn btn-ghost">Смотреть проекты</Link>
+                  <Link href="/contacts#form" className="btn btn-dark max-sm:h-14! max-sm:text-[1.05rem]!">Рассказать о задаче <ArrowRight size={18} /></Link>
+                  <Link href="/projects" className="btn btn-ghost max-sm:hidden!">Смотреть проекты</Link>
+                  <Link href="/projects" className="hero-more">Смотреть проекты <ArrowRight size={16} /></Link>
                 </div>
-                <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-extrabold">
+                <ul className="hero-proof mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm font-extrabold">
                   {proof.map((t) => <li key={t} className="flex items-center gap-2"><span className="h-2 w-2 bg-ink" />{t}</li>)}
                 </ul>
               </div>
@@ -79,22 +81,22 @@ export default async function Home() {
       <section id="services" className="section">
         <div className="container-x">
           <h2 className="t-h1 max-w-2xl">Чем мы занимаемся</h2>
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 sm:mt-10"><Swipe label="Услуги" wide="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {services.map((sv, i) => (
-              <article key={sv.id} className="card tile overflow-hidden p-6">
-                <div className="-mx-6 -mt-6 mb-6 border-b-2 border-ink" aria-hidden><ServiceArt service={sv.key} /></div>
+              <article key={sv.id} className="card tile overflow-hidden p-5 sm:p-6">
+                <div className="-mx-5 -mt-5 mb-5 border-b-2 border-ink sm:-mx-6 sm:-mt-6 sm:mb-6" aria-hidden><ServiceArt service={sv.key} /></div>
                 <div className="flex items-center justify-between">
                   <span className="chip">{String(i + 1).padStart(2, "0")}</span>
                   <Icon name={sv.icon} className="h-6 w-6" />
                 </div>
-                <h3 className="t-h3 mt-6">{sv.title}</h3>
+                <h3 className="t-h3 mt-4 sm:mt-6">{sv.title}</h3>
                 <p className="t-body mt-2 text-[.95rem]">{sv.text}</p>
-                <ul className="mt-4 space-y-1.5 text-sm font-medium text-ink-2">
+                <ul className="mt-4 space-y-1.5 text-sm font-medium text-ink-2 max-md:hidden">
                   {sv.points.map((p) => <li key={p} className="flex gap-2"><span className="mt-2 h-1.5 w-1.5 shrink-0 bg-accent" />{p}</li>)}
                 </ul>
               </article>
             ))}
-          </div>
+          </Swipe></div>
         </div>
       </section>
 

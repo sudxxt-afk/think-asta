@@ -124,4 +124,59 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 .mmenu-foot { margin-top: 28px; }
 @media (min-width: 1024px) { .burger, .mmenu { display: none; } }
 
+/* Swipe: snap carousel on phones (or everywhere with data-from=never), the `wide` layout above its breakpoint */
+.swipe-nav { display: none; align-items: center; gap: 14px; margin-top: 16px; }
+.swipe-count { font-family: var(--font-display); font-weight: 800; font-size: 1rem; letter-spacing: -.03em; min-width: 3.4em; }
+.swipe-count i { font-style: normal; color: var(--color-ink-3); }
+.swipe-dots { display: flex; gap: 6px; flex: 1; }
+.swipe-dots button { width: 8px; height: 8px; border-radius: 99px; background: var(--color-line); transition: width .35s cubic-bezier(.2, .7, .2, 1), background .35s; }
+.swipe-dots button[data-on] { width: 26px; background: var(--color-ink); }
+.swipe-arrows { display: none; gap: 8px; }
+.swipe[data-from=never] .swipe-nav { display: flex; }
+@media (min-width: 768px) { .swipe[data-from=never] .swipe-nav { order: -1; margin: 0 0 16px; } .swipe[data-from=never] { display: flex; flex-direction: column; } .swipe-arrows { display: flex; } .swipe[data-from=never] .swipe-dots { visibility: hidden; } }
+@media (max-width: 767px) {
+  .swipe[data-from=md] .swipe-nav { display: flex; }
+  .swipe[data-from=md] .swipe-track, .swipe[data-from=never] .swipe-track { display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; margin-inline: -20px; padding: 2px 20px 4px; scroll-padding-inline: 20px; scrollbar-width: none; }
+  .swipe-track::-webkit-scrollbar { display: none; }
+  .swipe[data-from=md] .swipe-track > *, .swipe[data-from=never] .swipe-track > * { flex: 0 0 86%; scroll-snap-align: start; scroll-snap-stop: always; }
+}
+@media (max-width: 1023px) {
+  .swipe[data-from=lg] .swipe-nav { display: flex; }
+  .swipe[data-from=lg] .swipe-track { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; margin-inline: -20px; padding: 2px 20px 4px; scroll-padding-inline: 20px; scrollbar-width: none; }
+  .swipe[data-from=lg] .swipe-track > * { flex: 0 0 min(86%, 420px); scroll-snap-align: start; }
+}
+
+/* Phone hero: the coral plate runs edge to edge under the header and fills the first screen */
+.hero-more { display: none; align-items: center; justify-content: center; gap: 6px; height: 44px; font-weight: 800; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 5px; }
+@media (max-width: 639px) {
+  .hero-more { display: inline-flex; }
+  .hero-plate { border-width: 0 0 2px; border-radius: 0 0 28px 28px; min-height: calc(100svh - var(--hdr)); padding-top: 18px; }
+  .hero-plate .wordmark { font-size: calc((100vw - 40px) / 6.8); margin-top: 14px; }
+  .hero-proof { flex-wrap: nowrap; overflow-x: auto; gap: 8px; margin-inline: -20px; padding-inline: 20px; scrollbar-width: none; }
+  .hero-proof::-webkit-scrollbar { display: none; }
+  .hero-proof li { flex: none; padding: 7px 12px; border: 2px solid var(--color-ink); border-radius: 99px; background: #fff; font-size: .8rem; }
+  .hero-proof li span { display: none; }
+}
+
+/* Phone action bar: the request and Telegram stay under the thumb once the hero is gone */
+.abar { position: fixed; z-index: 35; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); display: flex; gap: 8px; padding: 6px; border: 2px solid var(--color-ink); border-radius: 20px; background: var(--color-ink); box-shadow: 0 10px 30px rgba(11, 11, 15, .25); transform: translateY(calc(100% + 30px)); transition: transform .45s cubic-bezier(.2, .7, .2, 1); }
+.abar[data-on] { transform: none; }
+.abar a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border-radius: 14px; font-weight: 800; }
+.abar-main { flex: 1; background: var(--color-accent); color: var(--color-ink); }
+.abar-icon { width: 48px; flex: none; background: #26262d; color: #fff; }
+@media (min-width: 768px) { .abar { display: none; } }
+
+/* Footer: contact rows to tap on phones, the wordmark across the whole width */
+.foot-rows { display: grid; }
+.foot-rows a { display: inline-flex; align-items: center; gap: 6px; }
+.foot-rows a svg { display: none; }
+@media (max-width: 767px) {
+  .foot-rows { border-top: 1px solid rgb(255 255 255 / .15); }
+  .foot-rows > * { justify-content: space-between; padding-block: 15px; border-bottom: 1px solid rgb(255 255 255 / .15); font-size: 1.02rem; font-weight: 700; color: #fff; }
+  .foot-rows > div { font-size: .85rem; font-weight: 500; color: rgb(255 255 255 / .6); border-bottom: 0; padding-bottom: 0; }
+  .foot-rows a svg { display: block; color: var(--color-accent); }
+}
+.foot-mark { overflow: hidden; padding: 28px 0 0; font-family: var(--font-display); font-weight: 800; letter-spacing: -.045em; line-height: .78; white-space: nowrap; text-align: center; font-size: calc(100vw / 6.6); color: var(--color-accent); user-select: none; }
+.foot-mark span { color: #fff; }
+
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } .marquee > div { animation: none; } }
