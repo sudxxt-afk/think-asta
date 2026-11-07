@@ -14,7 +14,10 @@
 #   6. builds and starts Postgres, the app and Caddy (automatic HTTPS, sslip.io domain by default)
 #   7. waits for the site to answer over HTTPS and prints the address and admin login
 #
-# Options / env:  --domain D  (DOMAIN)   --repo URL  (REPO)   --branch B  (BRANCH)
+# Two sites behind one public IP: Caddy can also front an existing site on another LAN machine
+#   --legacy http://192.168.1.50:80   proxy the root sslip.io domain to that existing site
+#   --scan                            list LAN machines with a web server (to find that address)
+# Options / env:  --domain D  (DOMAIN, default think.<ip>.sslip.io)   --repo URL  (REPO)   --branch B  (BRANCH)
 #                 --pubkey "KEY"  adds an SSH public key to this user's authorized_keys
 #                 --dir PATH  (APP_DIR, default /opt/think-asta)
 
@@ -25,6 +28,9 @@ BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-/opt/think-asta}"
 DOMAIN="${DOMAIN:-}"
 PUBKEY="${PUBKEY:-}"
+LEGACY="${LEGACY:-}"
+LEGACY_DOMAIN="${LEGACY_DOMAIN:-}"
+SCAN=0
 LOG="${LOG:-/tmp/think-asta-install.log}"
 
 while [ $# -gt 0 ]; do
@@ -34,6 +40,9 @@ while [ $# -gt 0 ]; do
     --branch) BRANCH="${2:?}"; shift 2 ;;
     --pubkey) PUBKEY="${2:?}"; shift 2 ;;
     --dir) APP_DIR="${2:?}"; shift 2 ;;
+    --legacy) LEGACY="${2:?--legacy needs http://host:port}"; shift 2 ;;
+    --legacy-domain) LEGACY_DOMAIN="${2:?}"; shift 2 ;;
+    --scan) SCAN=1; shift ;;
     -h|--help) sed -n '2,22p' "$0" 2>/dev/null || true; exit 0 ;;
     *) echo "Unknown option: $1" >&2; exit 2 ;;
   esac
@@ -49,6 +58,25 @@ die()  { echo "${R}ERROR:${N} $*" >&2; exit 1; }
 
 STEP="start"
 trap 'rc=$?; echo "${R}Failed at step \"$STEP\" (line $LINENO, exit $rc): $BASH_COMMAND${N}" >&2; echo "Full log: $LOG" >&2; exit $rc' ERR
+
+# ---- LAN scan (no changes made) --------------------------------------------
+if [ "$SCAN" = 1 ]; then
+  me="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}' | head -n1)"
+  [ -n "$me" ] || me="$(hostname -I | awk '{print $1}')"
+  base="${me%.*}"
+  echo "Scanning $base.0/24 for web servers (ports 80, 443, 3000, 8000, 8080)..."
+  hits="$(seq 1 254 | xargs -P 64 -I{} sh -c 'ip="'"$base"'.{}"; for p in 80 443 3000 8000 8080; do timeout 1 bash -c "echo >/dev/tcp/$ip/$p" 2>/dev/null && echo "$ip $p"; done' | sort -t. -k4 -n)"
+  [ -n "$hits" ] || { echo "nothing found"; exit 0; }
+  while read -r ip port; do
+    scheme=http; [ "$port" = 443 ] && scheme=https
+    title="$(curl -sk -m 4 "$scheme://$ip:$port/" 2>/dev/null | tr '\n' ' ' | sed -n 's/.*<title>\([^<]*\)<\/title>.*/\1/Ip' | head -c 70)"
+    [ "$ip" = "$me" ] && who=" (this machine)" || who=""
+    echo "$scheme://$ip:$port$who   ${title:-no title}"
+  done <<< "$hits"
+  echo
+  echo "Pass the right one as:  --legacy http://IP:PORT"
+  exit 0
+fi
 
 # ---- privileges ------------------------------------------------------------
 if [ "$(id -u)" -eq 0 ]; then
@@ -194,7 +222,8 @@ STEP="address"; step "Address"
 PUBIP="$(curl -fsS --max-time 8 https://api.ipify.org 2>/dev/null || curl -fsS --max-time 8 https://ifconfig.me 2>/dev/null || true)"
 LANIP="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}' | head -n1 || true)"
 [ -n "$PUBIP" ] || die "cannot detect the public IP (no internet?)"
-[ -n "$DOMAIN" ] || DOMAIN="${PUBIP//./-}.sslip.io"
+[ -n "$DOMAIN" ] || DOMAIN="think.${PUBIP//./-}.sslip.io"
+[ -n "$LEGACY_DOMAIN" ] || LEGACY_DOMAIN="${PUBIP//./-}.sslip.io"
 echo "public IP: $PUBIP   local IP: ${LANIP:-?}   domain: $DOMAIN"
 NAT=0; [ -n "$LANIP" ] && [ "$LANIP" != "$PUBIP" ] && NAT=1
 
@@ -236,6 +265,25 @@ else
   ok ".env.prod kept (address refreshed)"
 fi
 for k in DB_PASSWORD SESSION_SECRET ADMIN_PASSWORD DOMAIN; do grep -q "^$k=." .env.prod || die ".env.prod is missing $k"; done
+
+STEP="legacy site"; step "Existing site on the root domain"
+mkdir -p deploy/conf.d
+if [ -n "$LEGACY" ]; then
+  case "$LEGACY" in http://*|https://*) ;; *) LEGACY="http://$LEGACY" ;; esac
+  {
+    printf '%s {\n\tencode zstd gzip\n' "$LEGACY_DOMAIN"
+    case "$LEGACY" in
+      https://*) printf '\treverse_proxy %s {\n\t\ttransport http {\n\t\t\ttls_insecure_skip_verify\n\t\t}\n\t}\n' "$LEGACY" ;;
+      *) printf '\treverse_proxy %s\n' "$LEGACY" ;;
+    esac
+    printf '}\n'
+  } > deploy/conf.d/legacy.caddy
+  ok "$LEGACY_DOMAIN -> $LEGACY"
+elif [ -f deploy/conf.d/legacy.caddy ]; then
+  ok "keeping the existing deploy/conf.d/legacy.caddy"
+else
+  echo "none (add one with --legacy http://IP:PORT)"
+fi
 
 # ---- 6. build and start ----------------------------------------------------
 STEP="images"; step "Pulling base images (retries, then registry mirrors if Docker Hub resets the connection)"
@@ -334,6 +382,7 @@ echo
 echo "${B}------------------------------------------------------------${N}"
 if [ "$ext" = 200 ]; then echo "${G}${B}Site is up:${N}  https://$DOMAIN"; else echo "${Y}${B}Site runs locally on the server, but is not reachable from outside yet:${N} https://$DOMAIN"; fi
 echo "Admin:        https://$DOMAIN/admin"
+[ -f deploy/conf.d/legacy.caddy ] && echo "Old site:     https://$LEGACY_DOMAIN   (proxied by Caddy, see deploy/conf.d/legacy.caddy)"
 echo "Login:        $ADMIN_EMAIL"
 echo "Password:     $ADMIN_PASSWORD   (stored in $APP_DIR/.env.prod)"
 echo "Update later: re-run this script;  logs: cd $APP_DIR && $COMPOSE logs -f"

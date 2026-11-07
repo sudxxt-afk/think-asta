@@ -10,3 +10,6 @@
 	header @static Cache-Control "public, max-age=31536000, immutable"
 	reverse_proxy app:3000
 }
+
+# Extra sites (e.g. an existing one on another machine) are dropped in here by install.sh
+import /etc/caddy/conf.d/*.caddy
