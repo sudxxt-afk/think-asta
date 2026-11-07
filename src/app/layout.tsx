@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: { default: "Think-asta: сайты, приложения, CRM, ИИ и Битрикс24", template: "%s | Think-asta" },
   description,
   applicationName: "Think-asta",
+  appleWebApp: { capable: true, title: "Think-asta", statusBarStyle: "default" },
   alternates: { canonical: "/" },
   openGraph: { type: "website", locale: "ru_RU", siteName: "Think-asta", title: "Think-asta: сайты, приложения, CRM, ИИ и Битрикс24", description, url: "/" },
   twitter: { card: "summary_large_image" },
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   verification: { google: process.env.GOOGLE_VERIFICATION || undefined, yandex: process.env.YANDEX_VERIFICATION || undefined },
 };
 
-export const viewport: Viewport = { themeColor: "#FF5A4E", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#FF5A4E", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

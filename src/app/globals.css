@@ -179,4 +179,56 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 .foot-mark { overflow: hidden; padding: 28px 0 0; font-family: var(--font-display); font-weight: 800; letter-spacing: -.045em; line-height: .78; white-space: nowrap; text-align: center; font-size: calc(100vw / 6.6); color: var(--color-accent); user-select: none; }
 .foot-mark span { color: #fff; }
 
+/* The header hides while reading down on phones (Chrome.tsx); pinned blocks below it follow */
+header { transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+header[data-hide] { transform: translateY(-100%); }
+.how-sticky { transition: top .35s cubic-bezier(.2, .7, .2, 1); }
+:root:has(header[data-hide]) .how-sticky { top: 0; }
+
+/* Bottom sheet with the request form (phones) */
+.sheet { position: fixed; inset: 0; z-index: 60; pointer-events: none; }
+.sheet[data-open] { pointer-events: auto; }
+.sheet-back { position: absolute; inset: 0; background: rgb(11 11 15 / .5); opacity: 0; transition: opacity .35s; }
+.sheet[data-open] .sheet-back { opacity: 1; }
+.sheet-panel { position: absolute; left: 0; right: 0; bottom: 0; max-height: 92svh; display: flex; flex-direction: column; background: var(--color-bg); border-top: 2px solid var(--color-ink); border-radius: 28px 28px 0 0; transform: translateY(105%); transition: transform .45s cubic-bezier(.2, .8, .2, 1); }
+.sheet[data-open] .sheet-panel { transform: none; }
+.sheet-top { padding: 10px 20px 14px; touch-action: none; cursor: grab; }
+.sheet-grip { display: block; width: 44px; height: 5px; margin: 0 auto 12px; border-radius: 9px; background: var(--color-line); }
+.sheet-x { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border: 2px solid var(--color-ink); border-radius: 12px; }
+.sheet-body { overflow-y: auto; overscroll-behavior: contain; padding: 0 12px calc(16px + env(safe-area-inset-bottom)); }
+
+/* Project stories (phones) */
+.stories { position: fixed; inset: 0; z-index: 70; background: var(--color-ink); color: #fff; opacity: 0; transition: opacity .3s; }
+.stories[data-shown] { opacity: 1; }
+.stories-stage { position: absolute; inset: 0; display: flex; flex-direction: column; padding: calc(10px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom)); touch-action: none; user-select: none; transform-origin: 50% 0; transform: scale(.96); transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+.stories[data-shown] .stories-stage { transform: none; }
+.stories[data-paused] .stories-stage { transition: none; }
+.stories-bars { display: flex; gap: 4px; }
+.stories-bars i { flex: 1; display: block; height: 3px; overflow: hidden; border-radius: 3px; background: rgb(255 255 255 / .25); }
+.stories-bars i[data-done] { background: #fff; }
+.stories-bars b { display: block; height: 100%; background: #fff; transform-origin: left; animation: story 6s linear forwards; }
+.stories[data-paused] .stories-bars b { animation-play-state: paused; }
+@keyframes story { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.stories-head { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+.stories-head button { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: rgb(255 255 255 / .1); }
+.stories-body { flex: 1; display: flex; flex-direction: column; justify-content: center; animation: storyIn .45s cubic-bezier(.2, .7, .2, 1); }
+.stories-art { aspect-ratio: 4 / 3; overflow: hidden; border: 2px solid #fff; border-radius: 24px; background: var(--color-sunken); }
+.stories-n { margin-top: 20px; font-family: var(--font-display); font-weight: 800; font-size: .9rem; color: var(--color-accent); }
+.stories-body h3 { margin-top: 6px; font-family: var(--font-display); font-weight: 800; font-size: 1.9rem; line-height: 1.05; letter-spacing: -.03em; }
+.stories-sum { margin-top: 10px; font-weight: 500; line-height: 1.5; color: rgb(255 255 255 / .75); }
+.stories-cta { width: 100%; height: 56px; margin-top: 16px; }
+@keyframes storyIn { from { opacity: 0; transform: translateX(24px); } }
+
+/* Swipe cards on phones settle like a deck: the ones leaving shrink and tilt away */
+@supports (animation-timeline: view()) {
+  @media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+    .swipe .swipe-track > * { animation: deck linear both; animation-timeline: view(inline); }
+  }
+}
+@keyframes deck {
+  0% { transform: scale(.9) rotate(2.5deg); }
+  40%, 60% { transform: none; }
+  100% { transform: scale(.9) rotate(-2.5deg); }
+}
+
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } .marquee > div { animation: none; } }

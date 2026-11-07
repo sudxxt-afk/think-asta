@@ -6,6 +6,7 @@ import { getHome } from "@/lib/home";
 import { Icon } from "@/components/Icon";
 import { Carousel } from "@/components/Carousel";
 import { Swipe } from "@/components/Swipe";
+import { ProjectStories } from "@/components/ProjectStories";
 import { ProjectCard } from "@/components/ProjectCard";
 import { ServiceArt } from "@/components/art/ServiceArt";
 import { HowWeWork } from "@/components/HowWeWork";
@@ -107,7 +108,7 @@ export default async function Home() {
               <h2 className="t-h1">Выполненные проекты</h2>
               <Link href="/projects" className="hidden text-sm font-extrabold underline decoration-accent decoration-[3px] underline-offset-4 sm:block">Все проекты →</Link>
             </div>
-            <div className="mt-8"><Carousel>{projects.map((p) => <ProjectCard key={p.id} p={p} />)}</Carousel></div>
+            <div className="mt-8"><ProjectStories items={projects.map((p) => ({ slug: p.slug, title: p.title, category: p.category, summary: p.summary, cover: p.cover }))}><Carousel>{projects.map((p) => <ProjectCard key={p.id} p={p} />)}</Carousel></ProjectStories></div>
           </div>
         </section>
       )}

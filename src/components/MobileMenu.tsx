@@ -11,6 +11,11 @@ export function MobileMenu({ nav, contacts }: { nav: string[][]; contacts: Conta
   const path = usePathname();
   useEffect(() => setOpen(false), [path]);
   useEffect(() => {
+    const close = () => setOpen(false);
+    window.addEventListener("ta:sheet", close);
+    return () => window.removeEventListener("ta:sheet", close);
+  }, []);
+  useEffect(() => {
     if (!open) return;
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.documentElement.style.overflow = "hidden";

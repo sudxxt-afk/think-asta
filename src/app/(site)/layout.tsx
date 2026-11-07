@@ -6,6 +6,9 @@ import { Track } from "@/components/Track";
 import { CookieBanner } from "@/components/CookieBanner";
 import { MobileMenu } from "@/components/MobileMenu";
 import { ActionBar } from "@/components/ActionBar";
+import { LeadSheet } from "@/components/LeadSheet";
+import { Chrome } from "@/components/Chrome";
+import { getHome } from "@/lib/home";
 import { ArrowUpRight } from "lucide-react";
 
 const nav = [["/#services", "Услуги"], ["/projects", "Проекты"], ["/configurator", "Конфигуратор"], ["/about", "О нас"], ["/blog", "Блог"], ["/contacts", "Контакты"]];
@@ -13,7 +16,7 @@ const nav = [["/#services", "Услуги"], ["/projects", "Проекты"], ["
 const legal = [["/privacy", "Политика конфиденциальности"], ["/consent", "Согласие на обработку данных"], ["/terms", "Пользовательское соглашение"], ["/cookies", "Cookie"]];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const s = await getSettings();
+  const [s, { services }] = await Promise.all([getSettings(), getHome()]);
   return (
     <>
       <JsonLd data={orgLd(s)} />
@@ -54,6 +57,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         </div>
       </footer>
       <ActionBar phone={s.phone} telegram={s.telegram} />
+      <LeadSheet services={services.map((x) => x.title)} />
+      <Chrome />
       <CookieBanner />
     </>
   );
