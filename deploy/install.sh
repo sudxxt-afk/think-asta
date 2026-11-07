@@ -269,6 +269,22 @@ for k in DB_PASSWORD SESSION_SECRET ADMIN_PASSWORD DOMAIN; do grep -q "^$k=." .e
 
 STEP="legacy site"; step "Existing site on the root domain"
 mkdir -p deploy/conf.d
+# A dockerized web server (e.g. another project's nginx) that publishes 80/443 itself: it moves behind Caddy.
+HOLDER="$($SUDO docker ps --filter publish=80 --filter publish=443 --format '{{.Names}}' 2>/dev/null | grep -v '^think-asta' | head -n1 || true)"
+HOLDER_SVC="" ; HOLDER_FILES="" ; HOLDER_DIR="" ; HOLDER_PROJ="" ; HOLDER_NET=""
+if [ -n "$HOLDER" ]; then
+  lbl() { $SUDO docker inspect -f "{{index .Config.Labels \"com.docker.compose.$1\"}}" "$HOLDER" 2>/dev/null || true; }
+  HOLDER_SVC="$(lbl service)"; HOLDER_PROJ="$(lbl project)"; HOLDER_DIR="$(lbl project.working_dir)"; HOLDER_FILES="$(lbl project.config_files)"
+  HOLDER_NET="$($SUDO docker inspect -f '{{range $k,$v := .NetworkSettings.Networks}}{{$k}} {{end}}' "$HOLDER" | tr ' ' '\n' | grep -v '^bridge$' | head -n1 || true)"
+  if [ -z "$HOLDER_SVC" ] || [ -z "$HOLDER_FILES" ] || [ -z "$HOLDER_NET" ]; then
+    die "container $HOLDER publishes 80/443 but is not managed by docker compose; remove its 80/443 port mapping (docker run ... -p) and re-run"
+  fi
+  warn "container $HOLDER (compose project $HOLDER_PROJ) holds 80/443: it will be moved behind Caddy"
+  if [ -z "$LEGACY" ]; then
+    if $SUDO docker inspect -f '{{json .NetworkSettings.Ports}}' "$HOLDER" | grep -q '"443/tcp"'; then LEGACY="https://$HOLDER:443"; else LEGACY="http://$HOLDER:80"; fi
+  fi
+  printf 'services:\n  caddy:\n    networks: [default, legacy]\nnetworks:\n  legacy:\n    external: true\n    name: %s\n' "$HOLDER_NET" > deploy/legacy-net.yml
+fi
 if [ -n "$LEGACY" ]; then
   case "$LEGACY" in http://*|https://*) ;; *) LEGACY="http://$LEGACY" ;; esac
   {
@@ -316,10 +332,29 @@ fi
 ok "base images present"
 
 STEP="compose build"; step "Build and start (the first build takes a few minutes)"
-COMPOSE="$DC -f docker-compose.prod.yml --env-file .env.prod"
+COMPOSE="$DC -f docker-compose.prod.yml"
+[ -f deploy/legacy-net.yml ] && COMPOSE="$COMPOSE -f deploy/legacy-net.yml"
+COMPOSE="$COMPOSE --env-file .env.prod"
 $COMPOSE config -q || die "docker-compose.prod.yml is invalid"
 retry 2 $COMPOSE build
 STEP="compose up"
+if [ -n "$HOLDER" ]; then
+  step "Moving $HOLDER off ports 80/443 (a few seconds of downtime for the old site)"
+  $DC version --short 2>/dev/null | awk -F. '{exit !($1>2 || ($1==2 && $2>=24))}' || die "docker compose is older than 2.24, cannot unpublish ports automatically; remove the 80/443 mappings of $HOLDER_SVC in $HOLDER_FILES by hand and re-run"
+  IFS=',' read -ra CF <<<"$HOLDER_FILES"
+  OV="$(dirname "${CF[0]}")/docker-compose.override.yml"
+  if [ -e "$OV" ] && ! grep -q 'managed by think-asta' "$OV"; then
+    OV="$(dirname "${CF[0]}")/docker-compose.think-asta.yml"
+    warn "docker-compose.override.yml already exists there; using $OV (pass it with -f on later 'compose up' runs of that project)"
+  fi
+  printf '# managed by think-asta install.sh: %s is reached through Caddy now\nservices:\n  %s:\n    ports: !reset []\n' "$HOLDER_SVC" "$HOLDER_SVC" | $SUDO tee "$OV" >/dev/null
+  HF=(); for f in "${CF[@]}"; do HF+=(-f "$f"); done; HF+=(-f "$OV")
+  $SUDO docker compose -p "$HOLDER_PROJ" --project-directory "$HOLDER_DIR" "${HF[@]}" up -d --no-deps "$HOLDER_SVC"
+  if [ -n "$($SUDO docker ps --filter "name=^$HOLDER$" --filter publish=80 --filter publish=443 --format '{{.Names}}')" ]; then
+    die "$HOLDER still publishes 80/443; remove those ports from $HOLDER_FILES by hand (original is untouched, override: $OV) and re-run"
+  fi
+  ok "$HOLDER is internal now (override: $OV; to undo delete it and 'docker compose up -d' in $HOLDER_DIR)"
+fi
 retry 3 $COMPOSE up -d --remove-orphans
 ok "stack started"
 $COMPOSE ps
