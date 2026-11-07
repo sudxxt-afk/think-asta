@@ -9,7 +9,7 @@ export function ProjectCard({ p }: { p: Project }) {
       <div className="aspect-[4/3] border-b-2 border-ink bg-sunken">
         {p.cover ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={p.cover} alt={p.title} className="h-full w-full object-cover" loading="lazy" />
+          <img src={p.cover} alt={p.title} className="h-full w-full object-cover" loading="lazy" decoding="async" />
         ) : (
           <ServiceArt category={p.category} />
         )}

@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { startTransition, useEffect, useRef, useState } from 'react'
 import { Bar, Button, Chip, Phone, Row, Stage, Text, Window, type Act } from '@/stageshow/kit'
 import './art.css'
 
@@ -8,6 +8,20 @@ const W = 400
 const H = 300
 
 type FrameProps<S> = { initial: S; poster: S; script: (a: Act<S>) => Promise<void>; cursor?: boolean; children: (s: S) => React.ReactNode }
+
+// Scenes must not start or stop mid-swipe: that work lands on the main thread while the track is moving
+const waiting = new Set<() => void>()
+let busy = false, idleAt = 0
+if (typeof window !== 'undefined') {
+  const bump = () => {
+    busy = true
+    clearTimeout(idleAt)
+    idleAt = window.setTimeout(() => { busy = false; waiting.forEach((f) => f()); waiting.clear() }, 420)
+  }
+  document.addEventListener('scroll', bump, { capture: true, passive: true })
+  document.addEventListener('touchmove', bump, { passive: true })
+}
+const whenIdle = (f: () => void) => { if (busy) waiting.add(f); else f() }
 
 // Plays only when the card is hovered (mouse) or sits in the middle of the screen (touch); otherwise shows its finished frame.
 function useRun() {
@@ -31,16 +45,22 @@ function useRun() {
     }
     // Touch: the card in the middle band plays and takes the same black fill a hover gives on desktop
     const card = el.closest<HTMLElement>('article, a')
-    // The fill is pure CSS and starts at once; the scene's script waits until the swipe has settled, so React work never lands mid-scroll
-    let t = 0
+    // The fill is pure CSS and starts at once; the scene itself (React state, cursor, measuring) starts and stops only once scrolling has settled
+    let want = false
+    // Even once settled, the scene starts in an idle slice of the frame, never in the middle of the snap
+    const apply = () => {
+      const go = () => startTransition(() => setRun(want))
+      const idle = (window as Window & { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number }).requestIdleCallback
+      if (idle) idle.call(window, go, { timeout: 500 })
+      else window.setTimeout(go, 60)
+    }
     const io = new IntersectionObserver(([e]) => {
-      card?.toggleAttribute('data-run', e.isIntersecting)
-      clearTimeout(t)
-      if (e.isIntersecting) t = window.setTimeout(() => setRun(true), 280)
-      else setRun(false)
+      want = e.isIntersecting
+      card?.toggleAttribute('data-run', want)
+      whenIdle(apply)
     }, { rootMargin: '-38% -20% -38% -20%' })
     io.observe(el)
-    return () => { clearTimeout(t); io.disconnect() }
+    return () => { waiting.delete(apply); io.disconnect() }
   }, [])
   return { ref, run }
 }

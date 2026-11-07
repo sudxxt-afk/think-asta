@@ -138,7 +138,7 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
   .swipe[data-from=md] .swipe-nav { display: flex; }
   .swipe[data-from=md] .swipe-track, .swipe[data-from=never] .swipe-track { display: flex; gap: 12px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; margin-inline: -20px; padding: 2px 20px 4px; scroll-padding-inline: 20px; scrollbar-width: none; }
   .swipe-track::-webkit-scrollbar { display: none; }
-  .swipe[data-from=md] .swipe-track > *, .swipe[data-from=never] .swipe-track > * { flex: 0 0 86%; scroll-snap-align: start; }
+  .swipe[data-from=md] .swipe-track > *, .swipe[data-from=never] .swipe-track > * { flex: 0 0 86%; scroll-snap-align: start; scroll-snap-stop: always; }
 }
 @media (max-width: 1023px) {
   .swipe[data-from=lg] .swipe-nav { display: flex; }
