@@ -43,9 +43,8 @@ function useRun() {
       card.addEventListener('pointerleave', off)
       return () => { card.removeEventListener('pointerenter', on); card.removeEventListener('pointerleave', off) }
     }
-    // Touch: the card in the middle band plays and takes the same black fill a hover gives on desktop
-    const card = el.closest<HTMLElement>('article, a')
-    // The fill is pure CSS and starts at once; the scene itself (React state, cursor, measuring) starts and stops only once scrolling has settled
+    // Touch: the card in the middle band plays its scene
+    // The scene itself (React state, cursor, measuring) starts and stops only once scrolling has settled
     let want = false
     // Even once settled, the scene starts in an idle slice of the frame, never in the middle of the snap
     const apply = () => {
@@ -56,7 +55,6 @@ function useRun() {
     }
     const io = new IntersectionObserver(([e]) => {
       want = e.isIntersecting
-      card?.toggleAttribute('data-run', want)
       whenIdle(apply)
     }, { rootMargin: '-38% -20% -38% -20%' })
     io.observe(el)

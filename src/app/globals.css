@@ -86,16 +86,14 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 /* Black floods the card from where the pointer entered, over .8s. A scaled circle runs on the compositor, unlike an animated clip-path */
 .tile { position: relative; isolation: isolate; transition: color .8s ease; }
 .tile::before { content: ""; position: absolute; z-index: -1; pointer-events: none; width: 1800px; height: 1800px; left: calc(var(--x, 50%) - 900px); top: calc(var(--y, 50%) - 900px); border-radius: 50%; background: var(--color-ink); transform: scale(0); transition: transform .8s cubic-bezier(.4, 0, .2, 1); }
-.tile:hover::before { transform: scale(1); }
-.tile:hover { color: #fff; }
 .tile .t-body, .tile li { transition: color .8s ease; }
-.tile:hover .t-body, .tile:hover li { color: #d8d8e0; }
-@media (hover: none) {
-  .tile::before { width: 1400px; height: 1400px; left: calc(50% - 700px); top: -700px; }
-  .tile[data-run]::before { transform: scale(1); }
-  .tile[data-run] { color: #fff; }
-  .tile[data-run] .t-body, .tile[data-run] li { color: #d8d8e0; }
+/* Mouse only: the fill follows the pointer. Touch has no fill, so a tap never leaves a card black */
+@media (hover: hover) and (pointer: fine) {
+  .tile:hover::before { transform: scale(1); }
+  .tile:hover { color: #fff; }
+  .tile:hover .t-body, .tile:hover li { color: #d8d8e0; }
 }
+@media not ((hover: hover) and (pointer: fine)) { .tile::before { display: none; } }
 @media (prefers-reduced-motion: reduce) { .tile, .tile::before, .tile .t-body, .tile li { transition-duration: .01s; } }
 
 /* Admin uses the same system, quieter */
