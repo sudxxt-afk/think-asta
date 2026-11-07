@@ -1,6 +1,7 @@
-.how { position: relative; }
-.how-sticky { position: sticky; top: 4rem; height: calc(100vh - 4rem); display: flex; align-items: center; }
-.how-stage { container-type: inline-size; position: relative; aspect-ratio: 100 / 62; overflow: hidden; background: var(--color-accent); border: 2px solid var(--color-ink); border-radius: 28px; }
+.how { position: relative; height: calc((var(--n) + 1) * 80vh); }
+.how-sticky { position: sticky; top: var(--hdr); height: calc(100svh - var(--hdr)); display: flex; align-items: center; }
+.how-stage { position: relative; aspect-ratio: 100 / 62; overflow: hidden; background: var(--color-accent); border: 2px solid var(--color-ink); border-radius: 28px; }
+.how-world { container-type: inline-size; position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 100 / 62; }
 .pc { --t: clamp(0, calc((var(--p) - var(--s)) / var(--l)), 1); --e: calc(1 - (1 - var(--t)) * (1 - var(--t))); position: absolute; opacity: clamp(0, calc(var(--t) * 4), 1);
   transform: translate(calc((1 - var(--e)) * var(--dx) * 1cqw), calc((1 - var(--e)) * var(--dy) * 1cqw)) rotate(calc((1 - var(--e)) * var(--r) * 1deg)); }
 .how[data-live] .pc { will-change: transform, opacity; }
@@ -36,5 +37,14 @@
 .how-step-d { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s; font-size: .95rem; line-height: 1.5; color: var(--color-ink-2); font-weight: 500; }
 .how-step-d > span { overflow: hidden; min-height: 0; }
 .how-step[data-on] .how-step-d { grid-template-rows: 1fr; padding-top: 6px; }
-@media (max-width: 1023px) { .how-sticky { align-items: flex-start; padding-top: 12px; } .how-step:not([data-on]) .how-step-t b { font-size: 1rem; } }
-@media (prefers-reduced-motion: reduce) { .how { height: auto !important; } .how-sticky { position: static; height: auto; padding: 3rem 0; } }
+@media (max-width: 1023px) {
+  .how { height: calc((var(--n) + 1) * 70svh); }
+  .how-sticky { align-items: flex-start; padding-top: 14px; }
+  .how-step:not([data-on]) .how-step-t b { font-size: 1rem; }
+  .how-step { padding: 9px 12px; }
+  .how-stage { aspect-ratio: 5 / 4; border-radius: 22px; }
+  /* Twice the size, panned by the camera in HowWeWork */
+  .how-world { width: 200%; transform: translate(var(--cx, 11%), var(--cy, 0%)); }
+  .how[data-live] .how-world { will-change: transform; }
+}
+@media (prefers-reduced-motion: reduce) { .how { height: auto !important; } .how-world { transform: none !important; width: 100% !important; } .how-stage { aspect-ratio: 100 / 62 !important; } .how-sticky { position: static; height: auto; padding: 3rem 0; } }

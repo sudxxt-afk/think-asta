@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Check, Link2, RotateCcw } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowRight, ArrowUp, Check, Link2, RotateCcw } from "lucide-react";
 import { CORES, GROUPS, MODULES, PRESETS, applyConfig, flow, tips, type ConfigOverride, type Core } from "./model";
 import { Diagram } from "./Diagram";
 import "./configurator.css";
@@ -11,6 +11,9 @@ export function Configurator({ initialCore, initialMods, config }: { initialCore
   const [core, setCore] = useState<Core>(initialCore);
   const [mods, setMods] = useState<string[]>(initialMods);
   const [copied, setCopied] = useState(false);
+  const plate = useRef<HTMLDivElement>(null);
+  const panel = useRef<HTMLElement>(null);
+  const [dock, setDock] = useState(false);
   const on = useMemo(() => new Set(mods), [mods]);
 
   // Keep the scheme in the URL so it can be shared or sent with the request
@@ -18,6 +21,18 @@ export function Configurator({ initialCore, initialMods, config }: { initialCore
     const q = new URLSearchParams({ core, m: mods.join(",") });
     window.history.replaceState(null, "", `?${q}`);
   }, [core, mods]);
+
+  // Phone: the scheme sits above the switches, so a dock keeps the counts in sight and jumps back to it
+  useEffect(() => {
+    const seen = { plate: true, panel: false };
+    const io = new IntersectionObserver((es) => {
+      for (const e of es) seen[e.target === plate.current ? "plate" : "panel"] = e.isIntersecting;
+      setDock(!seen.plate && seen.panel);
+    });
+    if (plate.current) io.observe(plate.current);
+    if (panel.current) io.observe(panel.current);
+    return () => io.disconnect();
+  }, []);
 
   const toggle = (id: string) => {
     if (id.startsWith("core:")) return setCore(id.slice(5) as Core);
@@ -47,7 +62,7 @@ export function Configurator({ initialCore, initialMods, config }: { initialCore
       </div>
 
       <div className="cfg-grid mt-6">
-        <aside className="cfg-panel">
+        <aside ref={panel} className="cfg-panel">
           <fieldset>
             <legend className="cfg-legend">Ядро системы</legend>
             <div className="grid gap-2">
@@ -77,7 +92,7 @@ export function Configurator({ initialCore, initialMods, config }: { initialCore
           ))}
         </aside>
 
-          <div className="cfg-plate">
+          <div ref={plate} className="cfg-plate">
             <div className="cfg-plate-head">
               <span className="chip">Ваша система</span>
               <div className="cfg-stats">
@@ -113,6 +128,11 @@ export function Configurator({ initialCore, initialMods, config }: { initialCore
               </div>
             </div>
           </div>
+      </div>
+
+      <div className="cfg-dock lg:hidden" data-on={dock || undefined} inert={!dock}>
+        <span><b>{chosen.length}</b> модулей · <b>{links}</b> связей</span>
+        <button type="button" onClick={() => plate.current?.scrollIntoView({ behavior: "smooth", block: "start" })}>Схема <ArrowUp size={16} strokeWidth={2.6} /></button>
       </div>
     </div>
   );

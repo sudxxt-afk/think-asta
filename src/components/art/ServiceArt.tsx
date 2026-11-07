@@ -29,7 +29,9 @@ function useRun() {
       card.addEventListener('pointerleave', off)
       return () => { card.removeEventListener('pointerenter', on); card.removeEventListener('pointerleave', off) }
     }
-    const io = new IntersectionObserver(([e]) => setRun(e.isIntersecting), { rootMargin: '-38% 0px -38% 0px' })
+    // Touch: the card in the middle band plays and takes the same black fill a hover gives on desktop
+    const card = el.closest<HTMLElement>('article, a')
+    const io = new IntersectionObserver(([e]) => { setRun(e.isIntersecting); card?.toggleAttribute('data-run', e.isIntersecting) }, { rootMargin: '-38% 0px -38% 0px' })
     io.observe(el)
     return () => io.disconnect()
   }, [])

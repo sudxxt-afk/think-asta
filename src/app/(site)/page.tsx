@@ -50,15 +50,15 @@ export default async function Home() {
         <div className="container-x">
           <div data-plate className="relative overflow-hidden rounded-[var(--radius-lg)] border-2 border-ink bg-accent px-5 pb-8 pt-6 sm:px-8 sm:pb-10">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="chip">Think-asta</span>
-              <span className="text-sm font-extrabold">Сайты · приложения · CRM · AI · Bitrix24</span>
+              <span className="chip max-sm:hidden!">Think-asta</span>
+              <span className="text-[13px] font-extrabold sm:text-sm">Сайты · приложения · CRM · AI · Bitrix24</span>
             </div>
-            <h1 className="wordmark mt-6 sm:mt-10">Think-asta<span className="sr-only"> — разработка сайтов, мобильных приложений, CRM, ИИ-автоматизация и настройка Битрикс24</span></h1>
-            <div className="mt-8 grid items-end gap-8 lg:grid-cols-[1fr_440px]">
+            <h1 className="wordmark mt-4 sm:mt-10">Think-asta<span className="sr-only"> — разработка сайтов, мобильных приложений, CRM, ИИ-автоматизация и настройка Битрикс24</span></h1>
+            <div className="mt-6 grid items-end gap-8 sm:mt-8 lg:grid-cols-[1fr_440px]">
               <div className="max-w-2xl">
                 <p className="font-display text-xl font-bold leading-snug tracking-tight sm:text-2xl">{s.hero_title}</p>
-                <p className="mt-3 text-[1.05rem] font-semibold leading-relaxed">{s.hero_text}</p>
-                <div className="mt-7 flex flex-wrap gap-3">
+                <p className="mt-3 text-[.98rem] font-semibold leading-relaxed sm:text-[1.05rem]">{s.hero_text}</p>
+                <div className="mt-6 grid gap-2.5 sm:mt-7 sm:flex sm:flex-wrap sm:gap-3">
                   <Link href="/contacts#form" className="btn btn-dark">Рассказать о задаче <ArrowRight size={18} /></Link>
                   <Link href="/projects" className="btn btn-ghost">Смотреть проекты</Link>
                 </div>

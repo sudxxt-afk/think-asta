@@ -4,6 +4,7 @@ import { JsonLd, orgLd } from "@/lib/seo";
 import { Analytics } from "@/components/Analytics";
 import { Track } from "@/components/Track";
 import { CookieBanner } from "@/components/CookieBanner";
+import { MobileMenu } from "@/components/MobileMenu";
 
 const nav = [["/#services", "Услуги"], ["/projects", "Проекты"], ["/configurator", "Конфигуратор"], ["/about", "О нас"], ["/blog", "Блог"], ["/contacts", "Контакты"]];
 
@@ -17,16 +18,16 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Analytics />
       <Track />
       <header className="sticky top-0 z-30 border-b-2 border-ink bg-bg">
-        <div className="container-x flex h-16 items-center justify-between">
-          <Link href="/" className="font-display text-lg font-extrabold tracking-tight">Think<span className="text-accent">-</span>asta</Link>
+        <div className="container-x flex h-[var(--hdr)] items-center justify-between gap-3">
+          <Link href="/" className="relative z-50 font-display text-lg font-extrabold tracking-tight">Think<span className="text-accent">-</span>asta</Link>
           <nav className="hidden gap-7 text-sm font-bold text-ink md:flex">
             {nav.map(([h, l]) => <Link key={h} href={h} className="hover:text-accent-hover">{l}</Link>)}
           </nav>
-          <Link href="/contacts#form" className="btn btn-primary btn-sm">Обсудить проект</Link>
+          <div className="flex items-center gap-2">
+            <Link href="/contacts#form" className="btn btn-primary btn-sm max-md:!h-10 max-md:!px-3.5">Обсудить<span className="max-[380px]:hidden">&nbsp;проект</span></Link>
+            <MobileMenu nav={nav} contacts={{ email: s.email, phone: s.phone, telegram: s.telegram }} />
+          </div>
         </div>
-        <nav className="container-x flex gap-5 overflow-x-auto pb-3 text-sm font-bold text-ink md:hidden">
-          {nav.map(([h, l]) => <Link key={h} href={h} className="whitespace-nowrap">{l}</Link>)}
-        </nav>
       </header>
       <main>{children}</main>
       <footer className="cv border-t-2 border-ink bg-ink text-white">

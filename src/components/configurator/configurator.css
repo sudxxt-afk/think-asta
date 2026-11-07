@@ -63,4 +63,9 @@
 .cfg-grid > .cfg-result { grid-area: result; }
 @media (min-width: 1024px) { .cfg-grid { grid-template-columns: 320px minmax(0, 1fr); grid-template-areas: "panel plate" "panel result"; align-items: start; } }
 .cfg-tog { font-size: .84rem; gap: 8px; padding: 8px; }
-.cfg-tog b { min-width: 0; overflow-wrap: anywhere; hyphens: auto; }
+.cfg-tog b { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
+@media (max-width: 479px) { .cfg-tog { flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px; } .cfg-tog b { min-height: 2.3em; } }
+.cfg-dock { position: fixed; z-index: 40; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 8px 8px 18px; border: 2px solid var(--color-ink); border-radius: 18px; background: var(--color-ink); color: #fff; font-size: .9rem; font-weight: 700; transform: translateY(calc(100% + 24px)); transition: transform .4s cubic-bezier(.2, .7, .2, 1); }
+.cfg-dock[data-on] { transform: none; }
+.cfg-dock b { font-family: var(--font-unbounded), sans-serif; color: var(--color-accent); }
+.cfg-dock button { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding-inline: 16px; border-radius: 12px; background: var(--color-accent); color: var(--color-ink); font-weight: 800; }

@@ -19,52 +19,65 @@ function P({ s, l = 0.1, dx = 0, dy = 0, r = 0, x, y, w, h, grow, className = ""
 function Stage() {
   return (
     <div className="how-stage" aria-hidden>
-      {/* 1. Разговор: реплики прилетают слева */}
-      <P s={0.0} dx={-30} dy={-6} r={-10} x={2.5} y={4} w={24} className="pc-card how-bubble">Нужен сайт и CRM для заявок</P>
-      <P s={0.05} dx={-30} dy={4} r={8} x={2.5} y={12.5} w={24} className="pc-card how-bubble how-us">Сколько заявок в месяц?</P>
-      <P s={0.1} dx={-30} dy={10} r={-6} x={2.5} y={21} w={24} className="pc-card how-bubble">Около двухсот, теряем часть</P>
+      <div className="how-world">
+        {/* 1. Разговор: реплики прилетают слева */}
+        <P s={0.0} dx={-30} dy={-6} r={-10} x={2.5} y={4} w={24} className="pc-card how-bubble">Нужен сайт и CRM для заявок</P>
+        <P s={0.05} dx={-30} dy={4} r={8} x={2.5} y={12.5} w={24} className="pc-card how-bubble how-us">Сколько заявок в месяц?</P>
+        <P s={0.1} dx={-30} dy={10} r={-6} x={2.5} y={21} w={24} className="pc-card how-bubble">Около двухсот, теряем часть</P>
 
-      {/* 2. Оценка: план с этапами */}
-      <P s={0.2} dx={-26} dy={14} r={9} x={2.5} y={31} w={24} h={26} className="pc-card how-plan">
-        <b>План работ</b>
-        {[["Прототип", "1 нед", 28], ["Разработка", "4 нед", 80], ["Запуск", "1 нед", 28]].map(([n, t, w]) => (
-          <div key={n as string} className="how-row"><span>{n}</span><i style={{ width: `${w}%` }} /><em>{t}</em></div>
-        ))}
-        <P s={0.34} l={0.05} dx={4} dy={-4} r={14} className="how-stamp">Цена и сроки ясны</P>
-      </P>
-
-      {/* 3. Прототип: каркас окна */}
-      <P s={0.38} dx={28} dy={-14} r={7} x={30} y={5} w={67} h={52} className="pc-card how-win">
-        <div className="how-bar"><i /><i /><i /></div>
-      </P>
-      <P s={0.46} dx={10} dy={-8} r={-4} x={33} y={11} w={20} h={2.4} className="how-line" />
-      <P s={0.49} dx={14} dy={-6} r={3} x={33} y={17} w={30} h={5} className="how-h">РемонтПро: ремонт под ключ</P>
-      <P s={0.52} dx={16} dy={-4} r={-3} x={33} y={25} w={26} h={1.6} className="how-line" />
-      <P s={0.54} dx={16} dy={-2} r={2} x={33} y={28.5} w={20} h={1.6} className="how-line" />
-      {[0, 1, 2].map((i) => (
-        <P key={i} s={0.56 + i * 0.03} dx={8 + i * 6} dy={14} r={-6 + i * 5} x={33 + i * 20.5} y={42} w={18.5} h={11} className="how-box" />
-      ))}
-
-      {/* 4. Разработка: каркас наполняется */}
-      <P s={0.66} l={0.12} grow x={61} y={14} w={32} h={24} className="how-img" />
-      <P s={0.74} dx={6} dy={6} r={-8} x={33} y={34} w={17} h={5} className="how-btn">Рассчитать</P>
-      {[0, 1, 2].map((i) => (
-        <P key={i} s={0.78 + i * 0.03} l={0.08} grow className="how-fill" x={33 + i * 20.5} y={42} w={18.5} h={11}>
-          <b>{["Каталог", "Заявки", "Отчёты"][i]}</b>
+        {/* 2. Оценка: план с этапами */}
+        <P s={0.2} dx={-26} dy={14} r={9} x={2.5} y={31} w={24} h={26} className="pc-card how-plan">
+          <b>План работ</b>
+          {[["Прототип", "1 нед", 28], ["Разработка", "4 нед", 80], ["Запуск", "1 нед", 28]].map(([n, t, w]) => (
+            <div key={n as string} className="how-row"><span>{n}</span><i style={{ width: `${w}%` }} /><em>{t}</em></div>
+          ))}
+          <P s={0.34} l={0.05} dx={4} dy={-4} r={14} className="how-stamp">Цена и сроки ясны</P>
         </P>
-      ))}
-      <P s={0.7} dx={16} dy={10} r={10} x={72} y={38} w={22} className="pc-card how-code">
-        <i style={{ width: "70%" }} /><i style={{ width: "92%" }} /><i style={{ width: "48%" }} />
-      </P>
 
-      {/* 5. Запуск */}
-      <P s={0.88} dx={6} dy={-10} r={8} x={78} y={1.2} className="how-live">Онлайн</P>
-      <P s={0.9} l={0.1} dx={8} dy={12} r={-6} x={76} y={43} w={22} h={15} className="pc-card how-chart">
-        <b>Заявки</b>
-        {[3, 5, 4, 7, 9].map((h, i) => <i key={i} className="how-b" style={{ "--h": h } as CSSProperties} />)}
-      </P>
+        {/* 3. Прототип: каркас окна */}
+        <P s={0.38} dx={28} dy={-14} r={7} x={30} y={5} w={67} h={52} className="pc-card how-win">
+          <div className="how-bar"><i /><i /><i /></div>
+        </P>
+        <P s={0.46} dx={10} dy={-8} r={-4} x={33} y={11} w={20} h={2.4} className="how-line" />
+        <P s={0.49} dx={14} dy={-6} r={3} x={33} y={17} w={30} h={5} className="how-h">РемонтПро: ремонт под ключ</P>
+        <P s={0.52} dx={16} dy={-4} r={-3} x={33} y={25} w={26} h={1.6} className="how-line" />
+        <P s={0.54} dx={16} dy={-2} r={2} x={33} y={28.5} w={20} h={1.6} className="how-line" />
+        {[0, 1, 2].map((i) => (
+          <P key={i} s={0.56 + i * 0.03} dx={8 + i * 6} dy={14} r={-6 + i * 5} x={33 + i * 20.5} y={42} w={18.5} h={11} className="how-box" />
+        ))}
+
+        {/* 4. Разработка: каркас наполняется */}
+        <P s={0.66} l={0.12} grow x={61} y={14} w={32} h={24} className="how-img" />
+        <P s={0.74} dx={6} dy={6} r={-8} x={33} y={34} w={17} h={5} className="how-btn">Рассчитать</P>
+        {[0, 1, 2].map((i) => (
+          <P key={i} s={0.78 + i * 0.03} l={0.08} grow className="how-fill" x={33 + i * 20.5} y={42} w={18.5} h={11}>
+            <b>{["Каталог", "Заявки", "Отчёты"][i]}</b>
+          </P>
+        ))}
+        <P s={0.7} dx={16} dy={10} r={10} x={72} y={38} w={22} className="pc-card how-code">
+          <i style={{ width: "70%" }} /><i style={{ width: "92%" }} /><i style={{ width: "48%" }} />
+        </P>
+
+        {/* 5. Запуск */}
+        <P s={0.88} dx={6} dy={-10} r={8} x={78} y={1.2} className="how-live">Онлайн</P>
+        <P s={0.9} l={0.1} dx={8} dy={12} r={-6} x={76} y={43} w={22} h={15} className="pc-card how-chart">
+          <b>Заявки</b>
+          {[3, 5, 4, 7, 9].map((h, i) => <i key={i} className="how-b" style={{ "--h": h } as CSSProperties} />)}
+        </P>
+      </div>
     </div>
   );
+}
+
+// Phone camera over the stage (stage units, the window is 50 x 40 of 100 x 62): follows whatever the current step builds
+const CAM: [p: number, x: number, y: number][] = [[0, -11, 0], [0.15, -11, 0], [0.24, -11, 20], [0.34, -11, 20], [0.42, 28, 2], [0.5, 28, 4], [0.62, 28, 13], [0.72, 47, 14], [0.86, 47, 14], [0.93, 48, 18], [1, 48, 18]];
+function cam(p: number) {
+  let i = 1;
+  while (i < CAM.length - 1 && CAM[i][0] < p) i++;
+  const [p0, x0, y0] = CAM[i - 1], [p1, x1, y1] = CAM[i];
+  const t = p1 > p0 ? Math.min(1, Math.max(0, (p - p0) / (p1 - p0))) : 1;
+  const e = t * t * (3 - 2 * t);
+  return [x0 + (x1 - x0) * e, y0 + (y1 - y0) * e];
 }
 
 export function HowWeWork({ steps }: { steps: Step[] }) {
@@ -76,6 +89,7 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
     const el = box.current;
     if (!el) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const phone = window.matchMedia("(max-width: 1023px)");
     let raf = 0;
     const update = () => {
       raf = 0;
@@ -83,6 +97,11 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
       const total = r.height - window.innerHeight;
       const p = still || total <= 0 ? 1 : Math.min(1, Math.max(0, -r.top / total));
       el.style.setProperty("--p", String(p));
+      if (phone.matches) {
+        const [x, y] = cam(p);
+        el.style.setProperty("--cx", `${-x}%`);
+        el.style.setProperty("--cy", `${(-y / 62) * 100}%`);
+      }
       setActive(Math.min(n - 1, Math.floor(p * n * 0.999)));
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
@@ -109,7 +128,7 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
   };
 
   return (
-    <div ref={box} className="how" style={{ "--p": 0, height: `${(n + 1) * 80}vh` } as CSSProperties}>
+    <div ref={box} className="how" style={{ "--p": 0, "--n": n } as CSSProperties}>
       <div className="how-sticky">
         <div className="container-x grid w-full items-center gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
           <div className="order-2 lg:order-1">

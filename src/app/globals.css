@@ -23,7 +23,9 @@
   --radius-lg: 28px;
 }
 
-html { scroll-behavior: smooth; }
+:root { --hdr: 56px; }
+@media (min-width: 768px) { :root { --hdr: 64px; } }
+html { scroll-behavior: smooth; scroll-padding-top: var(--hdr); }
 body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
 ::selection { background: var(--color-accent); color: #fff; }
 :focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 4px; }
@@ -88,6 +90,12 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 .tile:hover { color: #fff; }
 .tile .t-body, .tile li { transition: color .8s ease; }
 .tile:hover .t-body, .tile:hover li { color: #d8d8e0; }
+@media (hover: none) {
+  .tile::before { left: calc(50% - 900px); top: -900px; }
+  .tile[data-run]::before { transform: scale(1); }
+  .tile[data-run] { color: #fff; }
+  .tile[data-run] .t-body, .tile[data-run] li { color: #d8d8e0; }
+}
 @media (prefers-reduced-motion: reduce) { .tile, .tile::before, .tile .t-body, .tile li { transition-duration: .01s; } }
 
 /* Admin uses the same system, quieter */
@@ -101,5 +109,19 @@ body { background: var(--color-bg); color: var(--color-ink); font-family: var(--
 .carousel { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 12px; scrollbar-width: none; }
 .carousel::-webkit-scrollbar { display: none; }
 .carousel > * { scroll-snap-align: start; flex: 0 0 min(86%, 420px); }
+
+/* Mobile menu: the burger turns into a cross, the coral sheet drops from under the header */
+.burger { position: relative; z-index: 50; width: 40px; height: 40px; border: 2px solid var(--color-ink); border-radius: 12px; background: var(--color-ink); display: grid; place-items: center; }
+.burger i { position: absolute; width: 16px; height: 2px; background: #fff; border-radius: 2px; transition: transform .35s cubic-bezier(.6, 0, .2, 1); }
+.burger i:first-child { transform: translateY(-3.5px); }
+.burger i:last-child { transform: translateY(3.5px); }
+.burger[data-open] i:first-child { transform: rotate(45deg); }
+.burger[data-open] i:last-child { transform: rotate(-45deg); }
+.mmenu { position: fixed; inset: var(--hdr) 0 0; z-index: 40; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; padding-block: 12px 24px; background: var(--color-accent); border-top: 2px solid var(--color-ink); clip-path: inset(0 0 100% 0); visibility: hidden; transition: clip-path .5s cubic-bezier(.7, 0, .2, 1), visibility 0s .5s; }
+.mmenu[data-open] { clip-path: inset(0); visibility: visible; transition: clip-path .5s cubic-bezier(.7, 0, .2, 1); }
+.mmenu-link { display: flex; align-items: center; gap: 14px; padding-block: 14px; border-bottom: 2px solid var(--color-ink); font-family: var(--font-display); font-weight: 700; letter-spacing: -.03em; font-size: clamp(1.5rem, 7.2vw, 2.2rem); line-height: 1; opacity: 0; transform: translateY(18px); transition: opacity .3s, transform .3s; }
+.mmenu[data-open] .mmenu-link { opacity: 1; transform: none; transition: opacity .4s calc(.15s + var(--i) * .04s), transform .5s cubic-bezier(.2, .7, .2, 1) calc(.15s + var(--i) * .04s); }
+.mmenu-foot { margin-top: 28px; }
+@media (min-width: 768px) { .burger, .mmenu { display: none; } }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } .marquee > div { animation: none; } }
