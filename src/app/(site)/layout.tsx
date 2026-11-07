@@ -20,7 +20,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <header className="sticky top-0 z-30 border-b-2 border-ink bg-bg">
         <div className="container-x flex h-[var(--hdr)] items-center justify-between gap-3">
           <Link href="/" className="relative z-50 font-display text-lg font-extrabold tracking-tight">Think<span className="text-accent">-</span>asta</Link>
-          <nav className="hidden gap-7 text-sm font-bold text-ink md:flex">
+          <nav className="hidden gap-7 text-sm font-bold text-ink lg:flex">
             {nav.map(([h, l]) => <Link key={h} href={h} className="hover:text-accent-hover">{l}</Link>)}
           </nav>
           <div className="flex items-center gap-2">

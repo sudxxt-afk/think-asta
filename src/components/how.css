@@ -1,6 +1,6 @@
 .how { position: relative; height: calc((var(--n) + 1) * 80vh); }
 .how-sticky { position: sticky; top: var(--hdr); height: calc(100svh - var(--hdr)); display: flex; align-items: center; }
-.how-stage { position: relative; aspect-ratio: 100 / 62; overflow: hidden; background: var(--color-accent); border: 2px solid var(--color-ink); border-radius: 28px; }
+.how-stage { position: relative; width: min(100%, max(220px, calc((100svh - var(--hdr) - 48px) * 1.613))); margin-inline: auto; aspect-ratio: 100 / 62; overflow: hidden; background: var(--color-accent); border: 2px solid var(--color-ink); border-radius: 28px; }
 .how-world { container-type: inline-size; position: absolute; left: 0; top: 0; width: 100%; aspect-ratio: 100 / 62; }
 .pc { --t: clamp(0, calc((var(--p) - var(--s)) / var(--l)), 1); --e: calc(1 - (1 - var(--t)) * (1 - var(--t))); position: absolute; opacity: clamp(0, calc(var(--t) * 4), 1);
   transform: translate(calc((1 - var(--e)) * var(--dx) * 1cqw), calc((1 - var(--e)) * var(--dy) * 1cqw)) rotate(calc((1 - var(--e)) * var(--r) * 1deg)); }
@@ -42,9 +42,16 @@
   .how-sticky { align-items: flex-start; padding-top: 14px; }
   .how-step:not([data-on]) .how-step-t b { font-size: 1rem; }
   .how-step { padding: 9px 12px; }
-  .how-stage { aspect-ratio: 5 / 4; border-radius: 22px; }
+  /* One column: the stage gets what the step list leaves of the screen height */
+  .how-stage { width: min(100%, max(220px, calc((100svh - var(--hdr) - var(--list, 420px) - 64px) * 1.613))); }
+}
+@media (max-width: 767px) {
+  .how-stage { aspect-ratio: 5 / 4; border-radius: 22px; width: min(100%, max(220px, calc((100svh - var(--hdr) - var(--list, 420px) - 64px) * 1.25))); }
   /* Twice the size, panned by the camera in HowWeWork */
   .how-world { width: 200%; transform: translate(var(--cx, 11%), var(--cy, 0%)); }
   .how[data-live] .how-world { will-change: transform; }
 }
+/* Too short a screen to pin it: the section scrolls normally and plays as it passes */
+.how[data-static] { height: auto; }
+.how[data-static] .how-sticky { position: static; height: auto; padding-block: 3rem; }
 @media (prefers-reduced-motion: reduce) { .how { height: auto !important; } .how-world { transform: none !important; width: 100% !important; } .how-stage { aspect-ratio: 100 / 62 !important; } .how-sticky { position: static; height: auto; padding: 3rem 0; } }

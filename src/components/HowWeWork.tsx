@@ -82,6 +82,7 @@ function cam(p: number) {
 
 export function HowWeWork({ steps }: { steps: Step[] }) {
   const box = useRef<HTMLDivElement>(null);
+  const text = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const n = steps.length;
 
@@ -89,13 +90,18 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
     const el = box.current;
     if (!el) return;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const phone = window.matchMedia("(max-width: 1023px)");
+    const phone = window.matchMedia("(max-width: 767px)");
+    const wide = window.matchMedia("(min-width: 1024px)");
     let raf = 0;
     const update = () => {
       raf = 0;
       const r = el.getBoundingClientRect();
-      const total = r.height - window.innerHeight;
-      const p = still || total <= 0 ? 1 : Math.min(1, Math.max(0, -r.top / total));
+      const vh = window.innerHeight;
+      // Pinned: progress over the extra scroll height; unpinned: over the section passing from 80% of the screen to its bottom edge
+      const pinned = !el.hasAttribute("data-static");
+      const total = pinned ? r.height - vh : Math.max(200, r.height - vh * 0.2);
+      const from = pinned ? -r.top : vh * 0.8 - r.top;
+      const p = still ? 1 : Math.min(1, Math.max(0, from / total));
       el.style.setProperty("--p", String(p));
       if (phone.matches) {
         const [x, y] = cam(p);
@@ -105,6 +111,21 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
       setActive(Math.min(n - 1, Math.floor(p * n * 0.999)));
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    // The tallest the step list gets sizes the stage under it; if even a small stage won't fit, stop pinning
+    let list = 0;
+    const fit = () => {
+      const t = text.current;
+      if (!t) return;
+      list = Math.max(list, t.offsetHeight);
+      el.style.setProperty("--list", `${list}px`);
+      const room = window.innerHeight - parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hdr"));
+      el.toggleAttribute("data-static", list + (wide.matches ? 16 : 64 + 180) > room);
+      onScroll();
+    };
+    const ro = new ResizeObserver(fit);
+    if (text.current) ro.observe(text.current);
+    const onResize = () => { list = 0; fit(); };
+    window.addEventListener("resize", onResize);
     // Scroll work only while the section is near the viewport; elsewhere it just settles at 0 or 1
     let live = false;
     const io = new IntersectionObserver(([e]) => {
@@ -117,7 +138,7 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
     }, { rootMargin: "300px 0px" });
     io.observe(el);
     update();
-    return () => { io.disconnect(); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(raf); };
+    return () => { io.disconnect(); ro.disconnect(); window.removeEventListener("resize", onResize); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(raf); };
   }, [n]);
 
   const goTo = (i: number) => {
@@ -131,7 +152,7 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
     <div ref={box} className="how" style={{ "--p": 0, "--n": n } as CSSProperties}>
       <div className="how-sticky">
         <div className="container-x grid w-full items-center gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
-          <div className="order-2 lg:order-1">
+          <div ref={text} className="order-2 lg:order-1">
             <h2 className="t-h1">Как мы работаем</h2>
             <ol className="mt-6 space-y-2 lg:mt-8">
               {steps.map((st, i) => (
