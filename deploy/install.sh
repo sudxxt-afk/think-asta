@@ -49,6 +49,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ -t 1 ]; then B=$'\033[1m'; G=$'\033[32m'; Y=$'\033[33m'; R=$'\033[31m'; N=$'\033[0m'; else B=; G=; Y=; R=; N=; fi
+if ! { : >> "$LOG"; } 2>/dev/null; then LOG="$(mktemp /tmp/think-asta-install.XXXXXX.log)"; fi
 exec > >(tee -a "$LOG") 2>&1
 
 step() { echo; echo "${B}==> $*${N}"; }
@@ -61,11 +62,11 @@ trap 'rc=$?; echo "${R}Failed at step \"$STEP\" (line $LINENO, exit $rc): $BASH_
 
 # ---- LAN scan (no changes made) --------------------------------------------
 if [ "$SCAN" = 1 ]; then
-  me="$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}' | head -n1)"
+  me="${SCAN_ME:-$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i=="src") print $(i+1)}' | head -n1)}"
   [ -n "$me" ] || me="$(hostname -I | awk '{print $1}')"
   base="${me%.*}"
   echo "Scanning $base.0/24 for web servers (ports 80, 443, 3000, 8000, 8080)..."
-  hits="$(seq 1 254 | xargs -P 64 -I{} sh -c 'ip="'"$base"'.{}"; for p in 80 443 3000 8000 8080; do timeout 1 bash -c "echo >/dev/tcp/$ip/$p" 2>/dev/null && echo "$ip $p"; done' | sort -t. -k4 -n)"
+  hits="$(seq 1 254 | xargs -P 64 -I{} sh -c 'ip="'"$base"'.{}"; for p in 80 443 3000 8000 8080; do if timeout 1 bash -c "echo >/dev/tcp/$ip/$p" 2>/dev/null; then echo "$ip $p"; fi; done; exit 0' | sort -t. -k4,4n || true)"
   [ -n "$hits" ] || { echo "nothing found"; exit 0; }
   while read -r ip port; do
     scheme=http; [ "$port" = 443 ] && scheme=https
