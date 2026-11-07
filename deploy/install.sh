@@ -70,7 +70,7 @@ if [ "$SCAN" = 1 ]; then
   [ -n "$hits" ] || { echo "nothing found"; exit 0; }
   while read -r ip port; do
     scheme=http; [ "$port" = 443 ] && scheme=https
-    title="$(curl -sk -m 4 "$scheme://$ip:$port/" 2>/dev/null | tr '\n' ' ' | sed -n 's/.*<title>\([^<]*\)<\/title>.*/\1/Ip' | head -c 70)"
+    title="$( { curl -sk -m 4 "$scheme://$ip:$port/" 2>/dev/null | tr '\n' ' ' | sed -n 's/.*<title>\([^<]*\)<\/title>.*/\1/Ip' | head -c 70; } 2>/dev/null || true )"
     [ "$ip" = "$me" ] && who=" (this machine)" || who=""
     echo "$scheme://$ip:$port$who   ${title:-no title}"
   done <<< "$hits"
