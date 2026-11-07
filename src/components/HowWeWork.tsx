@@ -82,6 +82,7 @@ function cam(p: number) {
 
 export function HowWeWork({ steps }: { steps: Step[] }) {
   const box = useRef<HTMLDivElement>(null);
+  const head = useRef<HTMLDivElement>(null);
   const text = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const n = steps.length;
@@ -93,6 +94,7 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
     const phone = window.matchMedia("(max-width: 767px)");
     const wide = window.matchMedia("(min-width: 1024px)");
     let raf = 0;
+    let stage: HTMLElement | null = null;
     const update = () => {
       raf = 0;
       const r = el.getBoundingClientRect();
@@ -104,7 +106,9 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
       const p = still ? 1 : Math.min(1, Math.max(0, from / total));
       el.style.setProperty("--p", String(p));
       if (phone.matches) {
-        const [x, y] = cam(p);
+        const [x, y0] = cam(p);
+        const st = stage ?? (stage = el.querySelector<HTMLElement>(".how-stage"));
+        const y = st ? Math.min(y0, Math.max(0, 62 - (st.clientHeight / st.clientWidth) * 50)) : y0;
         el.style.setProperty("--cx", `${-x}%`);
         el.style.setProperty("--cy", `${(-y / 62) * 100}%`);
       }
@@ -114,9 +118,9 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
     // The tallest the step list gets sizes the stage under it; if even a small stage won't fit, stop pinning
     let list = 0;
     const fit = () => {
-      const t = text.current;
-      if (!t) return;
-      list = Math.max(list, t.offsetHeight);
+      const t = text.current, h = head.current;
+      if (!t || !h) return;
+      list = Math.max(list, t.offsetHeight + h.offsetHeight + 16);
       el.style.setProperty("--list", `${list}px`);
       const room = window.innerHeight - parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--hdr"));
       el.toggleAttribute("data-static", list + (wide.matches ? 16 : 64 + 180) > room);
@@ -124,6 +128,7 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
     };
     const ro = new ResizeObserver(fit);
     if (text.current) ro.observe(text.current);
+    if (head.current) ro.observe(head.current);
     const onResize = () => { list = 0; fit(); };
     window.addEventListener("resize", onResize);
     // Scroll work only while the section is near the viewport; elsewhere it just settles at 0 or 1
@@ -151,16 +156,38 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
   return (
     <div ref={box} className="how" style={{ "--p": 0, "--n": n } as CSSProperties}>
       <div className="how-sticky">
-        <div className="container-x grid w-full items-center gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
-          <div ref={text} className="order-2 lg:order-1">
+        <div className="container-x how-grid">
+          <div ref={head} className="how-head">
             <h2 className="t-h1">Как мы работаем</h2>
-            <ol className="mt-6 space-y-2 lg:mt-8">
+            <span className="how-count" aria-hidden>0{active + 1}<i>/0{n}</i></span>
+          </div>
+          <div className="how-art"><Stage /></div>
+          <div ref={text} className="how-steps">
+            {/* Narrow screens: a stepper that fills with the scroll and one card for the current step */}
+            <div className="how-m">
+              <ol className="how-track">
+                {steps.map((st, i) => (
+                  <li key={st.id}>
+                    <button type="button" onClick={() => goTo(i)} aria-label={st.title} aria-current={i === active ? "step" : undefined} data-on={i === active || undefined} style={{ "--i": i } as CSSProperties}>0{i + 1}<span className="how-track-t">{st.title}</span></button>
+                  </li>
+                ))}
+              </ol>
+              <div className="how-card" aria-live="polite">
+                {steps.map((st, i) => (
+                  <div key={st.id} data-on={i === active || undefined} aria-hidden={i !== active}>
+                    <b>{st.title}</b>
+                    <p>{st.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <ol className="how-list space-y-1.5">
               {steps.map((st, i) => (
                 <li key={st.id}>
                   <button type="button" onClick={() => goTo(i)} aria-current={i === active ? "step" : undefined} className="how-step" data-on={i === active || undefined}>
                     <span className="chip">0{i + 1}</span>
                     <span className="how-step-t">
-                      <b className="font-display text-lg font-extrabold tracking-tight lg:text-xl">{st.title}</b>
+                      <b className="font-display text-lg font-extrabold tracking-tight">{st.title}</b>
                       <span className="how-step-d"><span>{st.text}</span></span>
                     </span>
                   </button>
@@ -168,7 +195,6 @@ export function HowWeWork({ steps }: { steps: Step[] }) {
               ))}
             </ol>
           </div>
-          <div className="order-1 lg:order-2"><Stage /></div>
         </div>
       </div>
     </div>
