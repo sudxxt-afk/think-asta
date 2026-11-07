@@ -31,9 +31,16 @@ function useRun() {
     }
     // Touch: the card in the middle band plays and takes the same black fill a hover gives on desktop
     const card = el.closest<HTMLElement>('article, a')
-    const io = new IntersectionObserver(([e]) => { setRun(e.isIntersecting); card?.toggleAttribute('data-run', e.isIntersecting) }, { rootMargin: '-38% -20% -38% -20%' })
+    // The fill is pure CSS and starts at once; the scene's script waits until the swipe has settled, so React work never lands mid-scroll
+    let t = 0
+    const io = new IntersectionObserver(([e]) => {
+      card?.toggleAttribute('data-run', e.isIntersecting)
+      clearTimeout(t)
+      if (e.isIntersecting) t = window.setTimeout(() => setRun(true), 280)
+      else setRun(false)
+    }, { rootMargin: '-38% -20% -38% -20%' })
     io.observe(el)
-    return () => io.disconnect()
+    return () => { clearTimeout(t); io.disconnect() }
   }, [])
   return { ref, run }
 }

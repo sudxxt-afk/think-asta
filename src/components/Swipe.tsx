@@ -12,17 +12,22 @@ export function Swipe({ children, label, wide, from = "md" }: { children: React.
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    let raf = 0;
+    let raf = 0, step = 0;
+    // Measured once per resize: reading layout on every scroll frame is what made the track stutter
+    const measure = () => {
+      const first = el.firstElementChild as HTMLElement | null;
+      if (first) step = first.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0");
+    };
     const read = () => {
       raf = 0;
-      const first = el.firstElementChild as HTMLElement | null;
-      if (!first) return;
-      const step = first.offsetWidth + parseFloat(getComputedStyle(el).columnGap || "0");
-      setAt(Math.min(n - 1, Math.max(0, Math.round(el.scrollLeft / step))));
+      if (step) setAt(Math.min(n - 1, Math.max(0, Math.round(el.scrollLeft / step))));
     };
     const on = () => { if (!raf) raf = requestAnimationFrame(read); };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
     el.addEventListener("scroll", on, { passive: true });
-    return () => { el.removeEventListener("scroll", on); cancelAnimationFrame(raf); };
+    return () => { ro.disconnect(); el.removeEventListener("scroll", on); cancelAnimationFrame(raf); };
   }, [n]);
 
   const go = (i: number) => {
